@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>로그인 — 가치투자 종목 발굴 서비스</title>
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body data-page="login">
+
+<!-- ── Header ── -->
+<header class="header">
+  <div class="header-inner">
+    <a class="brand" href="index.html">가치투자 종목 발굴</a>
+  </div>
+</header>
+
+<!-- ── Auth Wrap ── -->
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h1 class="auth-title">로그인</h1>
+    <p class="auth-desc">계정에 로그인하여 서비스를 이용해보세요.</p>
+
+    <!-- 에러/성공 알림 -->
+    <div class="alert" id="alertBox" role="alert" aria-live="polite"></div>
+
+    <form id="loginForm" novalidate>
+      <!-- 이메일 -->
+      <div class="form-group">
+        <label class="form-label" for="email">이메일</label>
+        <input
+          class="form-input"
+          type="email"
+          id="email"
+          name="email"
+          placeholder="example@email.com"
+          autocomplete="email"
+          required
+        />
+      </div>
+
+      <!-- 비밀번호 -->
+      <div class="form-group">
+        <label class="form-label" for="password">비밀번호</label>
+        <input
+          class="form-input"
+          type="password"
+          id="password"
+          name="password"
+          placeholder="비밀번호 입력"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <button
+        class="btn-submit"
+        type="submit"
+        id="submitBtn"
+        data-label="로그인"
+      >
+        로그인
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      아직 계정이 없으신가요?
+      <a href="register.html">회원가입</a>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+</body>
+</html>

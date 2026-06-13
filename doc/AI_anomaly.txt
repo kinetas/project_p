@@ -1,0 +1,54 @@
+[AI Anomaly Log]
+
+(Monitoring AI가 이상 감지 시 이 파일에 기록합니다.)
+
+---
+[2026-06-14] backend_data 세그먼트 점검 — TASK-008 ~ TASK-017
+
+점검 대상: Entity / Repository / Service / Controller / Scheduler / DTO Developer
+결과: 정상
+
+- TASK-008 (StockEntity): @Entity/@Table, Lombok, 19개 필드, unique/nullable 제약 정상
+- TASK-009 (FinancialEntity): @Entity/@Table, @UniqueConstraint, Lombok, 16개 필드 정상
+- TASK-010 (StockRepository): JpaRepository 상속, 5개 쿼리 메서드 + @Query 정상
+- TASK-011 (FinancialRepository): JpaRepository 상속, 3개 쿼리 메서드 정상
+- TASK-012 (KrxCollectorService): API 호출, upsert, graceful fallback, RestTemplateConfig 정상
+- TASK-013 (DartCollectorService): ZIP 파싱, CorpCode 매핑, FinancialEntity upsert, graceful fallback 정상
+- TASK-014 (IndicatorCalculationService): 7개 지표 계산 (EPS/BPS/PER/PBR/ROE/영업이익률/부채비율), 분모 null/0 처리 정상
+- TASK-015 (StockController + FinancialController): REST API 3종 + 재무 조회, StockService 서비스 레이어 분리 정상
+- TASK-016 (DataCollectionScheduler): @Scheduled cron 매일 오전 7시, corpCode 최초 1회 최적화 정상 / @EnableScheduling 추가 필요 주석 안내 포함 (주의사항으로 명시됨, 이상 아님)
+- TASK-017 (DTO): 5개 DTO 클래스, 정적 팩토리 from() 패턴, Entity 직접 노출 없음 정상
+
+- 토큰 소모량: 전 태스크 "소" (이상 없음)
+- 코딩 룰 준수: Rule 2항(snake_case @Column 매핑), 4항(레이어 분리·Entity 직접 노출 금지) 모두 준수
+- 파일 생성 누락: 없음
+- 레이어 책임 위반: 없음
+- 보안 이상: 없음 (API Key @Value 주입, 외부 API graceful fallback 처리 확인)
+---
+[2026-06-14] backend_auth 세그먼트 점검 — TASK-003, 004, 005, 006, 007
+
+
+점검 대상: Entity / Repository / DTO / Service / Controller Developer
+결과: 정상
+
+- 토큰 소모량: 전 태스크 "소" (이상 없음)
+- 코딩 룰 준수: Rule 2항(snake_case), 4항(레이어 분리·Entity 직접 노출 금지) 모두 준수
+- 파일 생성 누락: 없음
+- 레이어 책임 위반: 없음
+- 보안 이상: 없음 (BCrypt 암호화 적용, 정보 노출 방지 처리 확인)
+---
+[2026-06-14] frontend 세그먼트 점검 — TASK-018, 019, 020
+
+점검 대상: Frontend Developer (종목 목록 / 종목 상세 / 회원 인증 페이지)
+결과: 정상
+
+- TASK-018 (종목 목록 페이지): index.html + stock-list.css/js 생성, fetch API 순수 JS(jQuery 미사용), XSS escapeHtml() 방어, TOP10 탭/테이블/페이지네이션 구현 정상
+- TASK-019 (종목 상세 페이지): detail.html + stock-detail.css/js 생성, Chart.js 4.4.2 CDN 차트 3개, 차트 인스턴스 destroy() 재생성으로 메모리 누수 방지 처리 정상
+- TASK-020 (회원 인증 페이지): login.html + register.html + auth.css/js 생성, JWT → sessionStorage 저장, 실시간 유효성 검사, role="alert" 접근성 처리 정상
+
+- 토큰 소모량: TASK-018(중), TASK-019(대), TASK-020(중) — 범위 내 정상
+- 코딩 룰 준수: jQuery 미사용(Coding Rule 준수), 레이어 분리(API 호출 JS 내 독립 처리) 정상
+- 파일 생성 누락: 없음 (총 10개 파일 생성 완료)
+- 보안 이상: 없음 (XSS escapeHtml() 적용, 인증 토큰 sessionStorage 처리 확인)
+- 기타: Chart.js CDN 외부 의존성 1건 — 번들러 미사용 환경 대응으로 정상 판단
+---

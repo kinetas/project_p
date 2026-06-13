@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>종목 상세 — 가치투자 종목 발굴 서비스</title>
+  <link rel="stylesheet" href="css/stock-detail.css" />
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="header">
+  <div class="header-inner">
+    <a class="brand" href="index.html">가치투자 종목 발굴</a>
+    <a class="btn-back" href="index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none"
+           viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      목록으로
+    </a>
+  </div>
+</header>
+
+<!-- ── Main ── -->
+<main class="main">
+
+  <!-- ── 상단: 요약카드 ── -->
+  <section class="summary-card" aria-label="종목 요약 정보">
+    <div class="summary-top">
+      <div class="stock-title-block">
+        <span class="stock-name" id="stockName">로딩 중...</span>
+        <div class="stock-code-market">
+          <span class="stock-code-label" id="stockCode">-</span>
+          <span id="stockMarket"></span>
+        </div>
+      </div>
+      <div class="price-block">
+        <div class="current-price" id="currentPrice">-<span>원</span></div>
+        <div class="market-cap" id="marketCap">-</div>
+      </div>
+    </div>
+
+    <div class="summary-metrics">
+      <div class="metric-item">
+        <span class="metric-label">PER</span>
+        <span class="metric-value" id="metricPer">-</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">PBR</span>
+        <span class="metric-value" id="metricPbr">-</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">ROE</span>
+        <span class="metric-value" id="metricRoe">-</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">배당수익률</span>
+        <span class="metric-value na" id="metricDividend">-</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 중단: 기업정보 + 가치지표 ── -->
+  <div class="mid-section">
+
+    <!-- 기업정보 -->
+    <div class="info-card" aria-label="기업 정보">
+      <h3 class="card-title">기업 정보</h3>
+      <div class="info-grid">
+        <div class="info-row">
+          <span class="info-key">업종</span>
+          <span class="info-val" id="infoSector">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">시장구분</span>
+          <span class="info-val" id="infoMarket">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">상장일</span>
+          <span class="info-val" id="infoListDate">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">대표자</span>
+          <span class="info-val" id="infoCeo">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 가치지표 -->
+    <div class="value-card" aria-label="가치 지표">
+      <h3 class="card-title">가치 지표</h3>
+      <div class="info-grid">
+        <div class="info-row">
+          <span class="info-key">EPS (주당순이익)</span>
+          <span class="info-val" id="valueEps">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">BPS (주당순자산)</span>
+          <span class="info-val" id="valueBps">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">ROE</span>
+          <span class="info-val" id="valueRoe">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">부채비율</span>
+          <span class="info-val" id="valueDebtRatio">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">영업이익률</span>
+          <span class="info-val" id="valueOpMargin">-</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /mid-section -->
+
+  <!-- ── 하단: 차트 ── -->
+  <section class="charts-section" aria-label="재무 추이 차트">
+    <h3 class="charts-title">5년 재무 추이</h3>
+    <div class="charts-grid">
+      <div class="chart-item">
+        <span class="chart-label">매출액 / 영업이익</span>
+        <div class="chart-container">
+          <canvas id="chartRevenue"></canvas>
+        </div>
+      </div>
+      <div class="chart-item">
+        <span class="chart-label">ROE 추이</span>
+        <div class="chart-container">
+          <canvas id="chartRoe"></canvas>
+        </div>
+      </div>
+      <div class="chart-item">
+        <span class="chart-label">부채비율 추이</span>
+        <div class="chart-container">
+          <canvas id="chartDebt"></canvas>
+        </div>
+      </div>
+    </div>
+    <!-- 차트 로딩/에러 메시지 영역 -->
+    <div id="chartsSection"></div>
+  </section>
+
+  <!-- ── 하단: 재무 테이블 ── -->
+  <section class="financial-section" aria-label="연도별 재무 테이블">
+    <div class="fin-tab-header" role="tablist">
+      <button class="fin-tab-btn active" role="tab" aria-selected="true" data-tab="tabIncome">
+        손익계산서
+      </button>
+      <button class="fin-tab-btn" role="tab" aria-selected="false" data-tab="tabBalance">
+        재무상태표
+      </button>
+      <button class="fin-tab-btn" role="tab" aria-selected="false" data-tab="tabInvest">
+        투자지표
+      </button>
+    </div>
+
+    <!-- 탭1: 손익계산서 -->
+    <div class="fin-tab-content active" id="tabIncome" role="tabpanel">
+      <table class="fin-table">
+        <thead>
+          <tr>
+            <th>연도</th>
+            <th>매출액</th>
+            <th>영업이익</th>
+            <th>영업이익률</th>
+            <th>순이익</th>
+          </tr>
+        </thead>
+        <tbody id="incomeTableBody">
+          <tr><td colspan="5"><div class="state-loading">로딩 중...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 탭2: 재무상태표 -->
+    <div class="fin-tab-content" id="tabBalance" role="tabpanel">
+      <table class="fin-table">
+        <thead>
+          <tr>
+            <th>연도</th>
+            <th>자산</th>
+            <th>부채</th>
+            <th>자본</th>
+            <th>부채비율</th>
+          </tr>
+        </thead>
+        <tbody id="balanceTableBody">
+          <tr><td colspan="5"><div class="state-loading">로딩 중...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 탭3: 투자지표 -->
+    <div class="fin-tab-content" id="tabInvest" role="tabpanel">
+      <table class="fin-table">
+        <thead>
+          <tr>
+            <th>연도</th>
+            <th>EPS</th>
+            <th>BPS</th>
+            <th>PER</th>
+            <th>PBR</th>
+            <th>ROE</th>
+          </tr>
+        </thead>
+        <tbody id="investTableBody">
+          <tr><td colspan="6"><div class="state-loading">로딩 중...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+</main>
+
+<script src="js/stock-detail.js"></script>
+</body>
+</html>
