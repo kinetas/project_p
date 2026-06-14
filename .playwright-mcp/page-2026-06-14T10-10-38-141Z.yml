@@ -1,0 +1,829 @@
+- generic [ref=e5]:
+  - generic [ref=e6]:
+    - generic [ref=e46]:
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e50]:
+            - button "메인 메뉴" [ref=e51]:
+              - img
+              - img
+            - generic [ref=e54]:
+              - generic [ref=e56]:
+                - button "Stock Investment Discovery Service, 파일 이름" [ref=e57]: Stock Investment Discovery Service
+                - generic [ref=e58]: 파일 이름
+              - button "파일 편집 메뉴" [ref=e62]:
+                - generic:
+                  - img
+            - generic [ref=e63]:
+              - generic [ref=e64]:
+                - status
+              - link "AI, 자세히 알아보기" [ref=e65]:
+                - /url: https://help.figma.com/hc/articles/23870272542231
+                - generic [ref=e66]: AI
+              - button "버전 내역" [ref=e67]:
+                - generic:
+                  - text: 버전 4
+                  - img
+          - generic [ref=e72]:
+            - generic [ref=e177]:
+              - generic [ref=e178]:
+                - region "최신 버전에 대한 사유" [ref=e181]:
+                  - generic [ref=e182]:
+                    - button "추론 보이기" [ref=e184] [cursor=pointer]:
+                      - text: 추론
+                      - img
+                    - paragraph [ref=e187]: 가치투자 발굴 서비스를 만들어보겠습니다. 먼저 프로젝트 구조와 디자인 시스템을 확인하겠습니다.
+                    - button "파일 표시하기" [ref=e189] [cursor=pointer]:
+                      - text: 2개의 파일로 작업했습니다
+                      - img
+                    - button "추론 보이기" [ref=e191] [cursor=pointer]:
+                      - text: 추론
+                      - img
+                    - generic [ref=e193]:
+                      - paragraph [ref=e194]: 좋습니다! 가치투자 발굴 서비스를 만들어보겠습니다.
+                      - paragraph [ref=e195]:
+                        - text: 먼저 화면 구성에 대해 추천드리자면,
+                        - strong [ref=e196]: 메인화면에 검색창과 주요 정보를 통합하고, 별도 목록 페이지 없이 바로 상세페이지로 이동하는 구조
+                        - text: "를 권장합니다. 이유는:"
+                      - list [ref=e197]:
+                        - listitem [ref=e198]:
+                          - strong [ref=e199]: 사용자 경험
+                          - text: ": 토스증권처럼 한 화면에서 빠르게 정보를 스캔하고 원하는 종목으로 바로 진입할 수 있습니다"
+                        - listitem [ref=e200]:
+                          - strong [ref=e201]: 검색 중심
+                          - text: ": 가치투자자들은 특정 조건으로 필터링하거나 검색하는 경우가 많아, 메인에 검색과 랭킹을 함께 보여주는 것이 효율적입니다"
+                        - listitem [ref=e202]:
+                          - strong [ref=e203]: 모바일 최적화
+                          - text: ": 페이지 depth를 줄여 모바일에서도 빠른 탐색이 가능합니다"
+                      - paragraph [ref=e204]: 어떤 구성을 원하시나요?
+                    - paragraph [ref=e207]: 토스증권 스타일의 가치투자 서비스를 만들 때, 사용자 경험 측면에서 메인화면 통합형이 더 효율적이지만, 최종 결정은 서비스 컨셉에 따라 달라질 수 있습니다.
+                    - generic [ref=e208]:
+                      - paragraph [ref=e212]: 화면 구성을 어떻게 하시겠습니까?
+                      - generic [ref=e215]:
+                        - button "C 일단 두 가지 모두 만들어서 비교해보기" [disabled]:
+                          - generic:
+                            - generic: C
+                            - generic: 일단 두 가지 모두 만들어서 비교해보기
+                    - button "추론 보이기" [ref=e217] [cursor=pointer]:
+                      - text: 추론
+                      - img
+                - region "버전 1, 비교용 두 가지 화면 만들기에 대한 사유" [ref=e220]:
+                  - generic [ref=e221]:
+                    - button "추론 보이기" [ref=e223] [cursor=pointer]:
+                      - text: 추론
+                      - img
+                    - generic [ref=e225]:
+                      - paragraph [ref=e226]:
+                        - text: 좋습니다! 두 가지 버전을 모두 만들어서 비교해보겠습니다. 먼저
+                        - strong [ref=e227]: 메인(검색+랭킹 통합) + 상세
+                        - text: 버전을 만들고, 이후에
+                        - strong [ref=e228]: 메인 + 목록 + 상세
+                        - text: 3단계 구조도 추가하겠습니다.
+                      - paragraph [ref=e229]: 토스증권 스타일의 깔끔하고 심플한 디자인으로 구현하겠습니다.
+                    - button "파일 표시하기" [ref=e231] [cursor=pointer]:
+                      - text: 10개의 파일로 작업했습니다
+                      - img
+                    - button "추론 보이기" [ref=e233] [cursor=pointer]:
+                      - text: 추론
+                      - img
+                    - paragraph [ref=e236]: 이제 3단계 구조를 위한 목록 페이지도 추가하겠습니다.
+                    - button "추론 보이기" [ref=e238] [cursor=pointer]:
+                      - text: 추론
+                      - img
+                    - generic [ref=e240]:
+                      - paragraph [ref=e241]: 완성되었습니다! 토스증권 스타일의 가치투자 발굴 서비스를 만들었습니다.
+                      - paragraph [ref=e242]:
+                        - strong [ref=e243]: "구현된 주요 기능:"
+                      - paragraph [ref=e244]:
+                        - strong [ref=e245]: 1. 메인 페이지 (/) - 통합형 구조
+                      - list [ref=e246]:
+                        - listitem [ref=e247]: 시장 지표 (KOSPI, KOSDAQ, 환율)
+                        - listitem [ref=e248]: 주요 종목 카드 (8개)
+                        - listitem [ref=e249]: 저PER, 저PBR, 고ROE, 배당수익률 TOP 10 랭킹
+                        - listitem [ref=e250]: 헤더 검색창으로 실시간 검색
+                      - paragraph [ref=e251]:
+                        - strong [ref=e252]: 2. 목록 페이지 (/list) - 3단계 구조용
+                      - list [ref=e253]:
+                        - listitem [ref=e254]: 정렬 가능한 전체 종목 테이블
+                        - listitem [ref=e255]: 시가총액, PER, PBR, ROE, 배당수익률 기준 정렬
+                        - listitem [ref=e256]: "데스크톱: 테이블 뷰 / 모바일: 카드 뷰"
+                      - paragraph [ref=e257]:
+                        - strong [ref=e258]: 3. 상세 페이지 (/stock/:code)
+                      - list [ref=e259]:
+                        - listitem [ref=e260]: 종목 기본 정보 및 현재가
+                        - listitem [ref=e261]: 매출/수익성 추이 차트 (최근 5년)
+                        - listitem [ref=e262]: 재무제표 상세 정보
+                        - listitem [ref=e263]: 자산/부채/자본 차트 및 테이블
+                      - paragraph [ref=e264]:
+                        - strong [ref=e265]: "디자인 특징:"
+                      - list [ref=e266]:
+                        - listitem [ref=e267]: 토스증권처럼 깔끔하고 심플한 UI
+                        - listitem [ref=e268]: 반응형 디자인 (모바일/태블릿/데스크톱 최적화)
+                        - listitem [ref=e269]: 상승/하락 색상 구분 (빨강/파랑)
+                        - listitem [ref=e270]: 카드형 레이아웃과 호버 효과
+                      - paragraph [ref=e271]:
+                        - strong [ref=e272]: "두 가지 구조 비교:"
+                      - list [ref=e273]:
+                        - listitem [ref=e274]:
+                          - strong [ref=e275]: 통합형 (메인→상세)
+                          - text: ": 헤더 검색 또는 메인 페이지에서 바로 종목 클릭"
+                        - listitem [ref=e276]:
+                          - strong [ref=e277]: 3단계 (메인→목록→상세)
+                          - text: ": 헤더 \"종목리스트\" 메뉴로 전체 리스트 확인 후 선택"
+                      - paragraph [ref=e278]: 이제 앱을 실행해보시고 어느 구조가 더 마음에 드시는지 비교해보세요!
+                    - generic [ref=e283]:
+                      - heading "비교용 두 가지 화면 만들기" [level=3] [ref=e284]
+                      - generic [ref=e285]: 버전 1
+                - region "버전 2, 수치 입력 필터링 추가에 대한 사유" [ref=e288]:
+                  - generic [ref=e289]:
+                    - button "추론 보이기" [ref=e291] [cursor=pointer]:
+                      - text: 추론
+                      - img
+                    - paragraph [ref=e294]: I'll help you transform the sorting buttons into a filtering system with numerical input fields. Let me first explore the current implementation to understand the data structure and existing patterns.
+                    - button "파일 표시하기" [ref=e296] [cursor=pointer]:
+                      - text: 6개의 파일로 작업했습니다
+                      - img
+                    - button "추론 보이기" [ref=e298] [cursor=pointer]:
+                      - text: 추론
+                      - img
+                    - paragraph [ref=e301]: Perfect! I now have a comprehensive understanding of the implementation. Let me write the final plan to the plan file.
+                    - button "추론 보이기" [ref=e303] [cursor=pointer]:
+                      - text: 추론
+                      - img
+                    - generic [ref=e304]:
+                      - button "Open plan file plans/serialized-inventing-blanket.md" [ref=e305] [cursor=pointer]
+                      - generic: plans/serialized-inventing-blanket.md
+                      - generic: "Plan: Replace Sorting Buttons with Numerical Filter Inputs"
+                      - generic: "The user wants to enhance the stock listing page's filtering capabilities. Currently, the filter section (lines 42-95 in `ListPage.tsx`) contains sorting buttons that reorder stocks by clicking. The user requests replacing these with **numerical input fields** that allow users to enter min/max values to filter stocks by specific criteria."
+                    - generic [ref=e310]:
+                      - heading "수치 입력 필터링 추가" [level=3] [ref=e311]
+                      - generic [ref=e312]: 버전 2
+                - region "버전 3, Add numerical filtering feature에 대한 사유" [ref=e315]:
+                  - generic [ref=e316]:
+                    - button "추론 보이기" [ref=e318] [cursor=pointer]:
+                      - text: 추론
+                      - img
+                    - paragraph [ref=e321]: Let me read the current file to understand the existing code.
+                    - button "파일 표시하기" [ref=e323] [cursor=pointer]:
+                      - text: 2개의 파일로 작업했습니다
+                      - img
+                    - paragraph [ref=e326]: Now I have a clear picture. Let me write the plan and implement.
+                    - generic [ref=e327]:
+                      - button "Open plan file plans/background-foamy-eagle.md" [ref=e328] [cursor=pointer]
+                      - generic: plans/background-foamy-eagle.md
+                      - generic: Context
+                      - generic: "`/workspaces/default/code/src/app/pages/ListPage.tsx`"
+                    - generic [ref=e333]:
+                      - heading "Add numerical filtering feature" [level=3] [ref=e334]
+                      - generic [ref=e335]: 버전 3
+              - region "버전 4, Implement approved plan에 대한 사유" [ref=e338]:
+                - generic [ref=e339]:
+                  - button "추론 보이기" [ref=e341] [cursor=pointer]:
+                    - text: 추론
+                    - img
+                  - button "파일 표시하기" [ref=e343] [cursor=pointer]:
+                    - text: 2개의 파일로 작업했습니다
+                    - img
+                  - generic [ref=e345]:
+                    - paragraph [ref=e346]: 완료했습니다. 정렬 버튼들을 수치 범위 필터링 시스템으로 교체했습니다.
+                    - list [ref=e347]:
+                      - listitem [ref=e348]:
+                        - strong [ref=e349]: 필터 패널
+                        - text: ": \"필터\" 버튼 클릭 시 PER, PBR, ROE, 배당수익률, 시가총액 각각 최소/최대 입력 필드가 열립니다"
+                      - listitem [ref=e350]:
+                        - strong [ref=e351]: 활성 필터 표시
+                        - text: ": 필터가 적용되면 버튼에"
+                        - code [ref=e352]: 필터 (N)
+                        - text: 형식으로 개수가 표시되고, "초기화" 버튼이 나타납니다
+                      - listitem [ref=e353]:
+                        - strong [ref=e354]: 결과 카운트
+                        - text: ": 필터 적용 시 헤더에 필터링된 종목 수가 표시됩니다"
+                      - listitem [ref=e355]:
+                        - strong [ref=e356]: 테이블 정렬
+                        - text: ": 기존 열 헤더의 ArrowUpDown 정렬 기능은 그대로 유지됩니다"
+                  - generic [ref=e361]:
+                    - heading "Implement approved plan" [level=3] [ref=e362]
+                    - generic [ref=e363]: 버전 4
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - generic [ref=e78]: Figma Make를 사용하려면 가입하세요
+                - generic [ref=e79]:
+                  - button "가입" [ref=e80]
+                  - button "Google 계정으로 계속하기" [ref=e83]:
+                    - generic:
+                      - img
+              - generic [ref=e84]:
+                - generic [ref=e87]:
+                  - textbox [disabled] [ref=e88]:
+                    - paragraph [ref=e89]
+                  - generic: 변경 요청
+                - generic [ref=e91]:
+                  - generic [ref=e93]:
+                    - button "디자인 첨부" [disabled] [ref=e94]:
+                      - generic:
+                        - img
+                    - generic [ref=e365]:
+                      - checkbox "편집" [disabled] [ref=e366]
+                      - generic:
+                        - generic: 편집
+                        - generic:
+                          - img
+                  - generic [ref=e95]:
+                    - button "채팅 모드" [disabled] [ref=e97]:
+                      - generic: 빌드
+                      - img
+                    - button "모델 선택" [disabled] [ref=e99]:
+                      - generic: 기본
+                      - img
+                    - button "받아쓰기" [disabled] [ref=e102]:
+                      - generic:
+                        - img
+        - slider "크기 조정 핸들" [ref=e108]
+      - generic [ref=e110]:
+        - generic [ref=e112]:
+          - generic [ref=e114]:
+            - button "다시 로드" [ref=e115]:
+              - generic:
+                - img
+            - generic [ref=e116]:
+              - generic [ref=e117]: /
+              - combobox "페이지 또는 화면에 대한 경로" [ref=e118]: 홈
+            - generic [ref=e119]:
+              - checkbox "모바일 미리보기" [ref=e120]
+              - generic:
+                - generic: 모바일 미리보기
+                - generic:
+                  - img
+          - generic [ref=e121]:
+            - generic [ref=e123]:
+              - button "멀티플레이어 도구" [ref=e125]:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+              - button "김정희 팔로우하기" [ref=e128]
+            - button "전체 화면 보기 열기" [ref=e134]:
+              - generic:
+                - img
+            - button "공유하기" [ref=e135]:
+              - generic:
+                - generic:
+                  - generic: 공유하기
+        - iframe [ref=e367]:
+          - generic [ref=f5e5]:
+            - banner [ref=f5e6]:
+              - generic [ref=f5e7]:
+                - generic [ref=f5e8]:
+                  - link "ValuePick" [ref=f5e9] [cursor=pointer]:
+                    - /url: /
+                  - navigation [ref=f5e10]:
+                    - link "홈" [ref=f5e11] [cursor=pointer]:
+                      - /url: /
+                    - link "종목리스트" [ref=f5e12] [cursor=pointer]:
+                      - /url: /list
+                    - link "랭킹" [ref=f5e13] [cursor=pointer]:
+                      - /url: "#ranking"
+                    - link "관심종목" [ref=f5e14] [cursor=pointer]:
+                      - /url: "#watchlist"
+                - generic [ref=f5e15]:
+                  - generic [ref=f5e16]:
+                    - img [ref=f5e17]
+                    - textbox "종목명 또는 종목코드 검색" [ref=f5e20]
+                  - generic [ref=f5e21]:
+                    - button "로그인" [ref=f5e22]
+                    - button "회원가입" [ref=f5e23]
+            - main [ref=f5e24]:
+              - generic [ref=f5e25]:
+                - generic [ref=f5e26]:
+                  - img [ref=f5e27]
+                  - heading "가치투자 발굴 서비스" [level=1] [ref=f5e30]
+                - paragraph [ref=f5e31]: 재무제표 기반으로 진짜 가치있는 종목을 찾아보세요
+              - generic [ref=f5e33]:
+                - heading "시장 지표" [level=3] [ref=f5e34]
+                - generic [ref=f5e35]:
+                  - generic [ref=f5e36]:
+                    - generic [ref=f5e37]: KOSPI
+                    - generic [ref=f5e38]: 2,678.22
+                    - generic [ref=f5e39]: +1.24% (+32.84)
+                  - generic [ref=f5e40]:
+                    - generic [ref=f5e41]: KOSDAQ
+                    - generic [ref=f5e42]: "758.45"
+                    - generic [ref=f5e43]: "-0.68% (-5.19)"
+                  - generic [ref=f5e44]:
+                    - generic [ref=f5e45]: USD/KRW
+                    - generic [ref=f5e46]: 1,328.5
+                    - generic [ref=f5e47]: +0.15% (+2.00)
+                  - generic [ref=f5e48]:
+                    - generic [ref=f5e49]: JPY/KRW
+                    - generic [ref=f5e50]: "8.95"
+                    - generic [ref=f5e51]: "-0.22% (-0.02)"
+              - generic [ref=f5e52]:
+                - heading "주요 종목" [level=2] [ref=f5e53]
+                - generic [ref=f5e54]:
+                  - generic [ref=f5e55] [cursor=pointer]:
+                    - generic [ref=f5e56]:
+                      - generic [ref=f5e57]:
+                        - heading "삼성전자" [level=3] [ref=f5e58]
+                        - paragraph [ref=f5e59]: "005930"
+                      - generic [ref=f5e60]:
+                        - generic [ref=f5e61]: 71,800원
+                        - generic [ref=f5e62]: +2.14%
+                    - generic [ref=f5e63]:
+                      - generic [ref=f5e64]:
+                        - generic [ref=f5e65]: 시가총액
+                        - generic [ref=f5e66]: 42850억
+                      - generic [ref=f5e67]:
+                        - generic [ref=f5e68]: PER
+                        - generic [ref=f5e69]: "12.5"
+                      - generic [ref=f5e70]:
+                        - generic [ref=f5e71]: PBR
+                        - generic [ref=f5e72]: "1.2"
+                      - generic [ref=f5e73]:
+                        - generic [ref=f5e74]: ROE
+                        - generic [ref=f5e75]: 9.8%
+                      - generic [ref=f5e76]:
+                        - generic [ref=f5e77]: 배당수익률
+                        - generic [ref=f5e78]: 2.5%
+                  - generic [ref=f5e79] [cursor=pointer]:
+                    - generic [ref=f5e80]:
+                      - generic [ref=f5e81]:
+                        - heading "SK하이닉스" [level=3] [ref=f5e82]
+                        - paragraph [ref=f5e83]: "000660"
+                      - generic [ref=f5e84]:
+                        - generic [ref=f5e85]: 142,500원
+                        - generic [ref=f5e86]: "-1.38%"
+                    - generic [ref=f5e87]:
+                      - generic [ref=f5e88]:
+                        - generic [ref=f5e89]: 시가총액
+                        - generic [ref=f5e90]: 10380억
+                      - generic [ref=f5e91]:
+                        - generic [ref=f5e92]: PER
+                        - generic [ref=f5e93]: "8.3"
+                      - generic [ref=f5e94]:
+                        - generic [ref=f5e95]: PBR
+                        - generic [ref=f5e96]: "1.5"
+                      - generic [ref=f5e97]:
+                        - generic [ref=f5e98]: ROE
+                        - generic [ref=f5e99]: 18.2%
+                      - generic [ref=f5e100]:
+                        - generic [ref=f5e101]: 배당수익률
+                        - generic [ref=f5e102]: 1.2%
+                  - generic [ref=f5e103] [cursor=pointer]:
+                    - generic [ref=f5e104]:
+                      - generic [ref=f5e105]:
+                        - heading "NAVER" [level=3] [ref=f5e106]
+                        - paragraph [ref=f5e107]: "035420"
+                      - generic [ref=f5e108]:
+                        - generic [ref=f5e109]: 185,000원
+                        - generic [ref=f5e110]: +3.67%
+                    - generic [ref=f5e111]:
+                      - generic [ref=f5e112]:
+                        - generic [ref=f5e113]: 시가총액
+                        - generic [ref=f5e114]: 3030억
+                      - generic [ref=f5e115]:
+                        - generic [ref=f5e116]: PER
+                        - generic [ref=f5e117]: "15.8"
+                      - generic [ref=f5e118]:
+                        - generic [ref=f5e119]: PBR
+                        - generic [ref=f5e120]: "1.8"
+                      - generic [ref=f5e121]:
+                        - generic [ref=f5e122]: ROE
+                        - generic [ref=f5e123]: 11.4%
+                      - generic [ref=f5e124]:
+                        - generic [ref=f5e125]: 배당수익률
+                        - generic [ref=f5e126]: 0.8%
+                  - generic [ref=f5e127] [cursor=pointer]:
+                    - generic [ref=f5e128]:
+                      - generic [ref=f5e129]:
+                        - heading "현대차" [level=3] [ref=f5e130]
+                        - paragraph [ref=f5e131]: "005380"
+                      - generic [ref=f5e132]:
+                        - generic [ref=f5e133]: 235,000원
+                        - generic [ref=f5e134]: +1.08%
+                    - generic [ref=f5e135]:
+                      - generic [ref=f5e136]:
+                        - generic [ref=f5e137]: 시가총액
+                        - generic [ref=f5e138]: 5020억
+                      - generic [ref=f5e139]:
+                        - generic [ref=f5e140]: PER
+                        - generic [ref=f5e141]: "5.2"
+                      - generic [ref=f5e142]:
+                        - generic [ref=f5e143]: PBR
+                        - generic [ref=f5e144]: "0.6"
+                      - generic [ref=f5e145]:
+                        - generic [ref=f5e146]: ROE
+                        - generic [ref=f5e147]: 11.5%
+                      - generic [ref=f5e148]:
+                        - generic [ref=f5e149]: 배당수익률
+                        - generic [ref=f5e150]: 3.8%
+                  - generic [ref=f5e151] [cursor=pointer]:
+                    - generic [ref=f5e152]:
+                      - generic [ref=f5e153]:
+                        - heading "카카오" [level=3] [ref=f5e154]
+                        - paragraph [ref=f5e155]: "035720"
+                      - generic [ref=f5e156]:
+                        - generic [ref=f5e157]: 41,200원
+                        - generic [ref=f5e158]: "-2.37%"
+                    - generic [ref=f5e159]:
+                      - generic [ref=f5e160]:
+                        - generic [ref=f5e161]: 시가총액
+                        - generic [ref=f5e162]: 1790억
+                      - generic [ref=f5e163]:
+                        - generic [ref=f5e164]: PER
+                        - generic [ref=f5e165]: "22.8"
+                      - generic [ref=f5e166]:
+                        - generic [ref=f5e167]: PBR
+                        - generic [ref=f5e168]: "1.4"
+                      - generic [ref=f5e169]:
+                        - generic [ref=f5e170]: ROE
+                        - generic [ref=f5e171]: 6.1%
+                      - generic [ref=f5e172]:
+                        - generic [ref=f5e173]: 배당수익률
+                        - generic [ref=f5e174]: 0.5%
+                  - generic [ref=f5e175] [cursor=pointer]:
+                    - generic [ref=f5e176]:
+                      - generic [ref=f5e177]:
+                        - heading "LG화학" [level=3] [ref=f5e178]
+                        - paragraph [ref=f5e179]: "051910"
+                      - generic [ref=f5e180]:
+                        - generic [ref=f5e181]: 358,000원
+                        - generic [ref=f5e182]: +0.56%
+                    - generic [ref=f5e183]:
+                      - generic [ref=f5e184]:
+                        - generic [ref=f5e185]: 시가총액
+                        - generic [ref=f5e186]: 2530억
+                      - generic [ref=f5e187]:
+                        - generic [ref=f5e188]: PER
+                        - generic [ref=f5e189]: "18.5"
+                      - generic [ref=f5e190]:
+                        - generic [ref=f5e191]: PBR
+                        - generic [ref=f5e192]: "0.9"
+                      - generic [ref=f5e193]:
+                        - generic [ref=f5e194]: ROE
+                        - generic [ref=f5e195]: 4.9%
+                      - generic [ref=f5e196]:
+                        - generic [ref=f5e197]: 배당수익률
+                        - generic [ref=f5e198]: 1.4%
+                  - generic [ref=f5e199] [cursor=pointer]:
+                    - generic [ref=f5e200]:
+                      - generic [ref=f5e201]:
+                        - heading "삼성SDI" [level=3] [ref=f5e202]
+                        - paragraph [ref=f5e203]: "006400"
+                      - generic [ref=f5e204]:
+                        - generic [ref=f5e205]: 425,000원
+                        - generic [ref=f5e206]: +4.18%
+                    - generic [ref=f5e207]:
+                      - generic [ref=f5e208]:
+                        - generic [ref=f5e209]: 시가총액
+                        - generic [ref=f5e210]: 2980억
+                      - generic [ref=f5e211]:
+                        - generic [ref=f5e212]: PER
+                        - generic [ref=f5e213]: "35.4"
+                      - generic [ref=f5e214]:
+                        - generic [ref=f5e215]: PBR
+                        - generic [ref=f5e216]: "2.1"
+                      - generic [ref=f5e217]:
+                        - generic [ref=f5e218]: ROE
+                        - generic [ref=f5e219]: 5.9%
+                      - generic [ref=f5e220]:
+                        - generic [ref=f5e221]: 배당수익률
+                        - generic [ref=f5e222]: 0.7%
+                  - generic [ref=f5e223] [cursor=pointer]:
+                    - generic [ref=f5e224]:
+                      - generic [ref=f5e225]:
+                        - heading "삼성바이오로직스" [level=3] [ref=f5e226]
+                        - paragraph [ref=f5e227]: "207940"
+                      - generic [ref=f5e228]:
+                        - generic [ref=f5e229]: 892,000원
+                        - generic [ref=f5e230]: +1.25%
+                    - generic [ref=f5e231]:
+                      - generic [ref=f5e232]:
+                        - generic [ref=f5e233]: 시가총액
+                        - generic [ref=f5e234]: 6270억
+                      - generic [ref=f5e235]:
+                        - generic [ref=f5e236]: PER
+                        - generic [ref=f5e237]: "42.5"
+                      - generic [ref=f5e238]:
+                        - generic [ref=f5e239]: PBR
+                        - generic [ref=f5e240]: "5.8"
+                      - generic [ref=f5e241]:
+                        - generic [ref=f5e242]: ROE
+                        - generic [ref=f5e243]: 13.6%
+                      - generic [ref=f5e244]:
+                        - generic [ref=f5e245]: 배당수익률
+                        - generic [ref=f5e246]: 0.3%
+              - generic [ref=f5e247]:
+                - generic [ref=f5e248]:
+                  - heading "📈 저PER 순위" [level=3] [ref=f5e249]
+                  - generic [ref=f5e250]:
+                    - generic [ref=f5e251] [cursor=pointer]:
+                      - generic [ref=f5e252]:
+                        - generic [ref=f5e253]: "1"
+                        - generic [ref=f5e254]:
+                          - generic [ref=f5e255]: 현대차
+                          - generic [ref=f5e256]: "005380"
+                      - generic [ref=f5e257]:
+                        - generic [ref=f5e258]: "5.2"
+                        - generic [ref=f5e259]: +1.08%
+                    - generic [ref=f5e260] [cursor=pointer]:
+                      - generic [ref=f5e261]:
+                        - generic [ref=f5e262]: "2"
+                        - generic [ref=f5e263]:
+                          - generic [ref=f5e264]: SK하이닉스
+                          - generic [ref=f5e265]: "000660"
+                      - generic [ref=f5e266]:
+                        - generic [ref=f5e267]: "8.3"
+                        - generic [ref=f5e268]: "-1.38%"
+                    - generic [ref=f5e269] [cursor=pointer]:
+                      - generic [ref=f5e270]:
+                        - generic [ref=f5e271]: "3"
+                        - generic [ref=f5e272]:
+                          - generic [ref=f5e273]: 삼성전자
+                          - generic [ref=f5e274]: "005930"
+                      - generic [ref=f5e275]:
+                        - generic [ref=f5e276]: "12.5"
+                        - generic [ref=f5e277]: +2.14%
+                    - generic [ref=f5e278] [cursor=pointer]:
+                      - generic [ref=f5e279]:
+                        - generic [ref=f5e280]: "4"
+                        - generic [ref=f5e281]:
+                          - generic [ref=f5e282]: NAVER
+                          - generic [ref=f5e283]: "035420"
+                      - generic [ref=f5e284]:
+                        - generic [ref=f5e285]: "15.8"
+                        - generic [ref=f5e286]: +3.67%
+                    - generic [ref=f5e287] [cursor=pointer]:
+                      - generic [ref=f5e288]:
+                        - generic [ref=f5e289]: "5"
+                        - generic [ref=f5e290]:
+                          - generic [ref=f5e291]: LG화학
+                          - generic [ref=f5e292]: "051910"
+                      - generic [ref=f5e293]:
+                        - generic [ref=f5e294]: "18.5"
+                        - generic [ref=f5e295]: +0.56%
+                    - generic [ref=f5e296] [cursor=pointer]:
+                      - generic [ref=f5e297]:
+                        - generic [ref=f5e298]: "6"
+                        - generic [ref=f5e299]:
+                          - generic [ref=f5e300]: 카카오
+                          - generic [ref=f5e301]: "035720"
+                      - generic [ref=f5e302]:
+                        - generic [ref=f5e303]: "22.8"
+                        - generic [ref=f5e304]: "-2.37%"
+                    - generic [ref=f5e305] [cursor=pointer]:
+                      - generic [ref=f5e306]:
+                        - generic [ref=f5e307]: "7"
+                        - generic [ref=f5e308]:
+                          - generic [ref=f5e309]: 삼성SDI
+                          - generic [ref=f5e310]: "006400"
+                      - generic [ref=f5e311]:
+                        - generic [ref=f5e312]: "35.4"
+                        - generic [ref=f5e313]: +4.18%
+                    - generic [ref=f5e314] [cursor=pointer]:
+                      - generic [ref=f5e315]:
+                        - generic [ref=f5e316]: "8"
+                        - generic [ref=f5e317]:
+                          - generic [ref=f5e318]: 삼성바이오로직스
+                          - generic [ref=f5e319]: "207940"
+                      - generic [ref=f5e320]:
+                        - generic [ref=f5e321]: "42.5"
+                        - generic [ref=f5e322]: +1.25%
+                - generic [ref=f5e323]:
+                  - heading "📊 저PBR 순위" [level=3] [ref=f5e324]
+                  - generic [ref=f5e325]:
+                    - generic [ref=f5e326] [cursor=pointer]:
+                      - generic [ref=f5e327]:
+                        - generic [ref=f5e328]: "1"
+                        - generic [ref=f5e329]:
+                          - generic [ref=f5e330]: 현대차
+                          - generic [ref=f5e331]: "005380"
+                      - generic [ref=f5e332]:
+                        - generic [ref=f5e333]: "0.6"
+                        - generic [ref=f5e334]: +1.08%
+                    - generic [ref=f5e335] [cursor=pointer]:
+                      - generic [ref=f5e336]:
+                        - generic [ref=f5e337]: "2"
+                        - generic [ref=f5e338]:
+                          - generic [ref=f5e339]: LG화학
+                          - generic [ref=f5e340]: "051910"
+                      - generic [ref=f5e341]:
+                        - generic [ref=f5e342]: "0.9"
+                        - generic [ref=f5e343]: +0.56%
+                    - generic [ref=f5e344] [cursor=pointer]:
+                      - generic [ref=f5e345]:
+                        - generic [ref=f5e346]: "3"
+                        - generic [ref=f5e347]:
+                          - generic [ref=f5e348]: 삼성전자
+                          - generic [ref=f5e349]: "005930"
+                      - generic [ref=f5e350]:
+                        - generic [ref=f5e351]: "1.2"
+                        - generic [ref=f5e352]: +2.14%
+                    - generic [ref=f5e353] [cursor=pointer]:
+                      - generic [ref=f5e354]:
+                        - generic [ref=f5e355]: "4"
+                        - generic [ref=f5e356]:
+                          - generic [ref=f5e357]: 카카오
+                          - generic [ref=f5e358]: "035720"
+                      - generic [ref=f5e359]:
+                        - generic [ref=f5e360]: "1.4"
+                        - generic [ref=f5e361]: "-2.37%"
+                    - generic [ref=f5e362] [cursor=pointer]:
+                      - generic [ref=f5e363]:
+                        - generic [ref=f5e364]: "5"
+                        - generic [ref=f5e365]:
+                          - generic [ref=f5e366]: SK하이닉스
+                          - generic [ref=f5e367]: "000660"
+                      - generic [ref=f5e368]:
+                        - generic [ref=f5e369]: "1.5"
+                        - generic [ref=f5e370]: "-1.38%"
+                    - generic [ref=f5e371] [cursor=pointer]:
+                      - generic [ref=f5e372]:
+                        - generic [ref=f5e373]: "6"
+                        - generic [ref=f5e374]:
+                          - generic [ref=f5e375]: NAVER
+                          - generic [ref=f5e376]: "035420"
+                      - generic [ref=f5e377]:
+                        - generic [ref=f5e378]: "1.8"
+                        - generic [ref=f5e379]: +3.67%
+                    - generic [ref=f5e380] [cursor=pointer]:
+                      - generic [ref=f5e381]:
+                        - generic [ref=f5e382]: "7"
+                        - generic [ref=f5e383]:
+                          - generic [ref=f5e384]: 삼성SDI
+                          - generic [ref=f5e385]: "006400"
+                      - generic [ref=f5e386]:
+                        - generic [ref=f5e387]: "2.1"
+                        - generic [ref=f5e388]: +4.18%
+                    - generic [ref=f5e389] [cursor=pointer]:
+                      - generic [ref=f5e390]:
+                        - generic [ref=f5e391]: "8"
+                        - generic [ref=f5e392]:
+                          - generic [ref=f5e393]: 삼성바이오로직스
+                          - generic [ref=f5e394]: "207940"
+                      - generic [ref=f5e395]:
+                        - generic [ref=f5e396]: "5.8"
+                        - generic [ref=f5e397]: +1.25%
+                - generic [ref=f5e398]:
+                  - heading "💰 고ROE 순위" [level=3] [ref=f5e399]
+                  - generic [ref=f5e400]:
+                    - generic [ref=f5e401] [cursor=pointer]:
+                      - generic [ref=f5e402]:
+                        - generic [ref=f5e403]: "1"
+                        - generic [ref=f5e404]:
+                          - generic [ref=f5e405]: SK하이닉스
+                          - generic [ref=f5e406]: "000660"
+                      - generic [ref=f5e407]:
+                        - generic [ref=f5e408]: 18.2%
+                        - generic [ref=f5e409]: "-1.38%"
+                    - generic [ref=f5e410] [cursor=pointer]:
+                      - generic [ref=f5e411]:
+                        - generic [ref=f5e412]: "2"
+                        - generic [ref=f5e413]:
+                          - generic [ref=f5e414]: 삼성바이오로직스
+                          - generic [ref=f5e415]: "207940"
+                      - generic [ref=f5e416]:
+                        - generic [ref=f5e417]: 13.6%
+                        - generic [ref=f5e418]: +1.25%
+                    - generic [ref=f5e419] [cursor=pointer]:
+                      - generic [ref=f5e420]:
+                        - generic [ref=f5e421]: "3"
+                        - generic [ref=f5e422]:
+                          - generic [ref=f5e423]: 현대차
+                          - generic [ref=f5e424]: "005380"
+                      - generic [ref=f5e425]:
+                        - generic [ref=f5e426]: 11.5%
+                        - generic [ref=f5e427]: +1.08%
+                    - generic [ref=f5e428] [cursor=pointer]:
+                      - generic [ref=f5e429]:
+                        - generic [ref=f5e430]: "4"
+                        - generic [ref=f5e431]:
+                          - generic [ref=f5e432]: NAVER
+                          - generic [ref=f5e433]: "035420"
+                      - generic [ref=f5e434]:
+                        - generic [ref=f5e435]: 11.4%
+                        - generic [ref=f5e436]: +3.67%
+                    - generic [ref=f5e437] [cursor=pointer]:
+                      - generic [ref=f5e438]:
+                        - generic [ref=f5e439]: "5"
+                        - generic [ref=f5e440]:
+                          - generic [ref=f5e441]: 삼성전자
+                          - generic [ref=f5e442]: "005930"
+                      - generic [ref=f5e443]:
+                        - generic [ref=f5e444]: 9.8%
+                        - generic [ref=f5e445]: +2.14%
+                    - generic [ref=f5e446] [cursor=pointer]:
+                      - generic [ref=f5e447]:
+                        - generic [ref=f5e448]: "6"
+                        - generic [ref=f5e449]:
+                          - generic [ref=f5e450]: 카카오
+                          - generic [ref=f5e451]: "035720"
+                      - generic [ref=f5e452]:
+                        - generic [ref=f5e453]: 6.1%
+                        - generic [ref=f5e454]: "-2.37%"
+                    - generic [ref=f5e455] [cursor=pointer]:
+                      - generic [ref=f5e456]:
+                        - generic [ref=f5e457]: "7"
+                        - generic [ref=f5e458]:
+                          - generic [ref=f5e459]: 삼성SDI
+                          - generic [ref=f5e460]: "006400"
+                      - generic [ref=f5e461]:
+                        - generic [ref=f5e462]: 5.9%
+                        - generic [ref=f5e463]: +4.18%
+                    - generic [ref=f5e464] [cursor=pointer]:
+                      - generic [ref=f5e465]:
+                        - generic [ref=f5e466]: "8"
+                        - generic [ref=f5e467]:
+                          - generic [ref=f5e468]: LG화학
+                          - generic [ref=f5e469]: "051910"
+                      - generic [ref=f5e470]:
+                        - generic [ref=f5e471]: 4.9%
+                        - generic [ref=f5e472]: +0.56%
+                - generic [ref=f5e473]:
+                  - heading "💵 배당수익률 순위" [level=3] [ref=f5e474]
+                  - generic [ref=f5e475]:
+                    - generic [ref=f5e476] [cursor=pointer]:
+                      - generic [ref=f5e477]:
+                        - generic [ref=f5e478]: "1"
+                        - generic [ref=f5e479]:
+                          - generic [ref=f5e480]: 현대차
+                          - generic [ref=f5e481]: "005380"
+                      - generic [ref=f5e482]:
+                        - generic [ref=f5e483]: 3.8%
+                        - generic [ref=f5e484]: +1.08%
+                    - generic [ref=f5e485] [cursor=pointer]:
+                      - generic [ref=f5e486]:
+                        - generic [ref=f5e487]: "2"
+                        - generic [ref=f5e488]:
+                          - generic [ref=f5e489]: 삼성전자
+                          - generic [ref=f5e490]: "005930"
+                      - generic [ref=f5e491]:
+                        - generic [ref=f5e492]: 2.5%
+                        - generic [ref=f5e493]: +2.14%
+                    - generic [ref=f5e494] [cursor=pointer]:
+                      - generic [ref=f5e495]:
+                        - generic [ref=f5e496]: "3"
+                        - generic [ref=f5e497]:
+                          - generic [ref=f5e498]: LG화학
+                          - generic [ref=f5e499]: "051910"
+                      - generic [ref=f5e500]:
+                        - generic [ref=f5e501]: 1.4%
+                        - generic [ref=f5e502]: +0.56%
+                    - generic [ref=f5e503] [cursor=pointer]:
+                      - generic [ref=f5e504]:
+                        - generic [ref=f5e505]: "4"
+                        - generic [ref=f5e506]:
+                          - generic [ref=f5e507]: SK하이닉스
+                          - generic [ref=f5e508]: "000660"
+                      - generic [ref=f5e509]:
+                        - generic [ref=f5e510]: 1.2%
+                        - generic [ref=f5e511]: "-1.38%"
+                    - generic [ref=f5e512] [cursor=pointer]:
+                      - generic [ref=f5e513]:
+                        - generic [ref=f5e514]: "5"
+                        - generic [ref=f5e515]:
+                          - generic [ref=f5e516]: NAVER
+                          - generic [ref=f5e517]: "035420"
+                      - generic [ref=f5e518]:
+                        - generic [ref=f5e519]: 0.8%
+                        - generic [ref=f5e520]: +3.67%
+                    - generic [ref=f5e521] [cursor=pointer]:
+                      - generic [ref=f5e522]:
+                        - generic [ref=f5e523]: "6"
+                        - generic [ref=f5e524]:
+                          - generic [ref=f5e525]: 삼성SDI
+                          - generic [ref=f5e526]: "006400"
+                      - generic [ref=f5e527]:
+                        - generic [ref=f5e528]: 0.7%
+                        - generic [ref=f5e529]: +4.18%
+                    - generic [ref=f5e530] [cursor=pointer]:
+                      - generic [ref=f5e531]:
+                        - generic [ref=f5e532]: "7"
+                        - generic [ref=f5e533]:
+                          - generic [ref=f5e534]: 카카오
+                          - generic [ref=f5e535]: "035720"
+                      - generic [ref=f5e536]:
+                        - generic [ref=f5e537]: 0.5%
+                        - generic [ref=f5e538]: "-2.37%"
+                    - generic [ref=f5e539] [cursor=pointer]:
+                      - generic [ref=f5e540]:
+                        - generic [ref=f5e541]: "8"
+                        - generic [ref=f5e542]:
+                          - generic [ref=f5e543]: 삼성바이오로직스
+                          - generic [ref=f5e544]: "207940"
+                      - generic [ref=f5e545]:
+                        - generic [ref=f5e546]: 0.3%
+                        - generic [ref=f5e547]: +1.25%
+    - toolbar "도움말/확대/축소 도구 모음" [ref=e27]:
+      - button "도움말" [ref=e29]:
+        - img
+  - generic:
+    - status
+    - group [ref=e156]:
+      - alert [ref=e158]
+      - alert [ref=e160]
+    - region "쿠키 관리 또는 옵트 아웃" [ref=e368]:
+      - link "쿠키 관리 또는 옵트 아웃" [ref=e369]:
+        - /url: /ko-kr/consent-preferences/

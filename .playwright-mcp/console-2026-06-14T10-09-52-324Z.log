@@ -1,0 +1,67 @@
+[   24617ms] [LOG] Running frontend commit f0737ab5d802e095b34e61204b9f983a6c2e1b2c @ https://www.figma.com/make/UrRh5ShCQhgjFxup1znNE6/Stock-Investment-Discovery-Service:560
+[   25568ms] [WARNING] Statsig is not ready to log exposures, will retry in 1 seconds @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   25653ms] [ERROR] Failed to load resource: the server responded with a status of 403 (Forbidden) @ https://browser-intake-datadoghq.com/api/v2/rum:0
+[   25837ms] [LOG] [import] git: f0737ab5d802e095b34e61204b9f983a6c2e1b2c, stamp: 742502982D78A2A7 @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   25993ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://www.figma.com/api/statsig/v1_ruleset:0
+[   25994ms] [ERROR] Failed to fetch v1 ruleset: w: XHR for "/api/statsig/v1_ruleset" failed with status 401
+    at P (https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:1385:11140)
+    at async Object.O [as get] (https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:1385:11522)
+    at async https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:1026:257224
+    at async g.validate (https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:1365:5067)
+    at async b (https://www.figma.com/webpack-artifacts/assets/figma_app-23e100fab01fc6a9.min.js.br:173:474640)
+    at async y (https://www.figma.com/webpack-artifacts/assets/figma_app-23e100fab01fc6a9.min.js.br:173:473844)
+    at async Object.write (https://www.figma.com/webpack-artifacts/assets/figma_app-23e100fab01fc6a9.min.js.br:173:473463) @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   26279ms] [LOG] Loaded 45 scripts (6602228b), 0 from cache (0b) @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   26506ms] [INFO] [Fullscreen] Booting... (emscripten version 4.0.21) @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   26626ms] [INFO] [GPU] graphicsAPI:"WebGL 2", vendor:"Google Inc. (NVIDIA)", renderer:"ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti (0x00002782) Direct3D11 vs_5_0 ps_5_0, D3D11)" version:"OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))" @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   26632ms] [LOG] [Fullscreen] Ready in 634.4ms @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   26637ms] [WARNING] The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127 @ https://www.figma.com/webpack-artifacts/assets/1149-be7ceefa16dcb5a3.min.js.br:6
+[   26639ms] [WARNING] The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127 @ https://www.figma.com/webpack-artifacts/assets/1149-be7ceefa16dcb5a3.min.js.br:6
+[   26916ms] [INFO] [FullscreenApp] calling setEditorTheme and setting preference light @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   27176ms] [INFO] [MultiplayerSession] connecting to wss://www.figma.com/api/multiplayer/UrRh5ShCQhgjFxup1znNE6?role=editor&tracking_session_id=ZB5vFIT4krPwd9j1&version=166&recentReload=0&file-load-streaming-compression=&client_release=f0737ab5d802e095b34e61204b9f983a6c2e1b2c&previousLoadMode=full&reconnect-key=3c960542-b7c3-428d-9d37-22a666453a3d&reconnect-sequence-number=80&initialFileVersion=106 @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   27195ms] [INFO] [MultiplayerSession] Joining file version 106 (skip_reload reconnect) @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   27271ms] [INFO] [FullscreenApp] calling setEditorTheme and setting preference light @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   27417ms] [WARNING] No available adapters. @ https://www.figma.com/make/UrRh5ShCQhgjFxup1znNE6/Stock-Investment-Discovery-Service?p=f:0
+[   27417ms] [WARNING] The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127 @ https://www.figma.com/webpack-artifacts/assets/1149-be7ceefa16dcb5a3.min.js.br:6
+[   27417ms] [WARNING] No available adapters. @ https://www.figma.com/make/UrRh5ShCQhgjFxup1znNE6/Stock-Investment-Discovery-Service?p=f:0
+[   27418ms] [WARNING] The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127 @ https://www.figma.com/webpack-artifacts/assets/1149-be7ceefa16dcb5a3.min.js.br:6
+[   27544ms] [WARNING] No available adapters. @ https://www.figma.com/make/UrRh5ShCQhgjFxup1znNE6/Stock-Investment-Discovery-Service?p=f:0
+[   27544ms] [WARNING] No available adapters. @ https://www.figma.com/make/UrRh5ShCQhgjFxup1znNE6/Stock-Investment-Discovery-Service?p=f:0
+[   27555ms] [WARNING] No available adapters. @ https://www.figma.com/make/UrRh5ShCQhgjFxup1znNE6/Stock-Investment-Discovery-Service?p=f:0
+[   27556ms] [WARNING] No available adapters. @ https://www.figma.com/make/UrRh5ShCQhgjFxup1znNE6/Stock-Investment-Discovery-Service?p=f:0
+[   27964ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://www.figma.com/api/folders/205507000:0
+[   28065ms] [LOG] [Fullscreen] loadtime=27.26s maxmem=8654072 @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   28097ms] w: XHR for "/api/folders/205507000" failed with status 401
+    at P (https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:1385:11140)
+    at async Object.O [as get] (https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:1385:11522)
+    at async https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:1026:189640
+    at async g.validate (https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:1365:5067)
+    at async h.fetchObject (https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:236:179217)
+    at async f (https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:236:158576)
+[   28101ms] [LOG] [devtools] Initialized LS @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   28101ms] [LOG] [devtools] Initialized LS @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   28139ms] [LOG] Sentry event id: 4eb9311995334b038cc0d70a6468a2d0 @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   28210ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://www.figma.com/api/user/plans:0
+[   28210ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://www.figma.com/api/integrations/supabase/UrRh5ShCQhgjFxup1znNE6/connection:0
+[   28238ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://www.figma.com/api/user/plans:0
+[   28375ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://www.figma.com/api/user/plans:0
+[   28916ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://www.figma.com/api/rev/UrRh5ShCQhgjFxup1znNE6/code_snapshot/e360821de346ed64a6f21c41e50f601a1b5ae3845289d65972ac1b9c74555d7d:0
+[   28916ms] [WARNING] Failed to fetch snapshot files: w: XHR for "/api/rev/UrRh5ShCQhgjFxup1znNE6/code_snapshot/e360821de346ed64a6f21c41e50f601a1b5ae3845289d65972ac1b9c74555d7d" failed with status 401
+    at P (https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:1385:11140)
+    at async Object.O [as get] (https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:1385:11522)
+    at async https://www.figma.com/webpack-artifacts/assets/6183-2f28b88e702526c6.min.js.br:3:41440
+    at async https://www.figma.com/webpack-artifacts/assets/6183-2f28b88e702526c6.min.js.br:14:81747
+    at async https://www.figma.com/webpack-artifacts/assets/729-da1ce429ea1e789c.min.js.br:3:275
+    at async _ (https://www.figma.com/webpack-artifacts/assets/6183-2f28b88e702526c6.min.js.br:14:81167)
+    at async https://www.figma.com/webpack-artifacts/assets/6183-2f28b88e702526c6.min.js.br:14:60750 @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   28933ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://www.figma.com/api/users/batched?user_ids=1339930206920374342:0
+[   28934ms] [WARNING] Failed to get public users @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   29094ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://www.figma.com/api/users/batched?user_ids=1339930206920374342:0
+[   29094ms] [WARNING] Failed to get public users @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   45243ms] [WARNING] Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://marketing.figma.com') does not match the recipient window's origin ('https://www.figma.com'). @ https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:1202
+[   45255ms] [WARNING] Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://marketing.figma.com') does not match the recipient window's origin ('https://www.figma.com'). @ https://www.figma.com/webpack-artifacts/assets/2220-9cf7b7db6094bc22.min.js.br:1202
+[   45495ms] [WARNING] [GSI_LOGGER]: Your client application uses one of the Google One Tap prompt UI status methods that may stop functioning when FedCM becomes mandatory. Refer to the migration guide to update your code accordingly and opt-in to FedCM to test your changes. Learn more: https://developers.google.com/identity/gsi/web/guides/fedcm-migration?s=dc#display_moment and https://developers.google.com/identity/gsi/web/guides/fedcm-migration?s=dc#skipped_moment @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   45496ms] [ERROR] Not signed in with the identity provider. @ https://www.figma.com/make/UrRh5ShCQhgjFxup1znNE6/Stock-Investment-Discovery-Service?p=f:0
+[   45694ms] [WARNING] pixel already configured. @ https://pixel.byspotify.com/ping.min.js:0
+[   46268ms] [INFO] [Sprigma] Sprig SDK is ready @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53
+[   52798ms] [ERROR] [GSI_LOGGER]: FedCM get() rejects with NetworkError: Error retrieving a token. @ https://www.figma.com/webpack-artifacts/assets/vendor-core-f97691b5f390a9d7.min.js.br:53

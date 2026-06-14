@@ -1,0 +1,13 @@
+- generic [ref=e5]:
+  - toolbar "도움말/확대/축소 도구 모음" [ref=e27]:
+    - button "도움말" [ref=e29]:
+      - img
+  - tooltip "언어는 도움말 메뉴에서 언제든지 변경할 수 있습니다 닫기" [ref=e30]:
+    - generic [ref=e33]:
+      - generic [ref=e34]: 언어는 도움말 메뉴에서 언제든지 변경할 수 있습니다
+      - button "닫기" [ref=e36]:
+        - generic:
+          - img
+  - group [ref=e38]:
+    - alert [ref=e40]
+    - alert [ref=e42]
