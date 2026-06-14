@@ -17,6 +17,9 @@ public class StockListResponse {
     private Double pbr;
     private Double roe;
     private Double debtRatio;
+    private Double changeRate;
+    private Long changeAmount;
+    private Double dividendYield;
 
     public static StockListResponse from(StockEntity entity) {
         return StockListResponse.builder()
@@ -29,6 +32,9 @@ public class StockListResponse {
                 .pbr(entity.getPbr())
                 .roe(entity.getRoe())
                 .debtRatio(entity.getDebtRatio())
+                .changeRate(0.0)
+                .changeAmount(0L)
+                .dividendYield(0.0)
                 .build();
     }
 }

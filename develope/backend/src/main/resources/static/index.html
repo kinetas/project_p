@@ -3,132 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>가치투자 종목 발굴 서비스</title>
-  <link rel="stylesheet" href="css/stock-list.css" />
+  <title>ValuePick — 가치투자 발굴 서비스</title>
+  <link rel="stylesheet" href="css/common.css" />
+  <link rel="stylesheet" href="css/home.css" />
 </head>
 <body>
 
-<!-- ── Header ── -->
-<header class="header">
-  <div class="header-inner">
-    <a class="brand" href="index.html">가치투자 종목 발굴</a>
-    <nav class="header-nav" id="headerNav">
-      <a class="btn-login" href="login.html">로그인</a>
-      <a class="btn-register" href="register.html">회원가입</a>
-    </nav>
-  </div>
-</header>
+<div id="header-placeholder"></div>
 
-<!-- ── Main ── -->
 <main class="main">
-
-  <!-- 검색 & 필터 -->
-  <section class="search-section" aria-label="검색 및 필터">
-    <div class="search-row">
-      <div class="search-input-wrap">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input type="text" id="searchInput" placeholder="종목명 또는 종목코드 입력" aria-label="종목 검색" />
-      </div>
-      <button class="btn-search" id="searchBtn">검색</button>
+  <section class="hero" aria-label="서비스 소개">
+    <div class="hero-icon" aria-hidden="true">
+      <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2">
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+      </svg>
     </div>
-
-    <div class="filter-row">
-      <!-- 시장 구분 -->
-      <div class="filter-group">
-        <span class="filter-label">시장</span>
-        <select id="filterMarket" aria-label="시장 구분 필터">
-          <option value="ALL">전체</option>
-          <option value="KOSPI">KOSPI</option>
-          <option value="KOSDAQ">KOSDAQ</option>
-        </select>
-      </div>
-
-      <!-- PER 범위 -->
-      <div class="filter-group">
-        <span class="filter-label">PER 범위</span>
-        <div class="filter-range">
-          <input type="number" id="filterPerMin" placeholder="최소" min="0" step="0.1" aria-label="PER 최솟값" />
-          <span>~</span>
-          <input type="number" id="filterPerMax" placeholder="최대" min="0" step="0.1" aria-label="PER 최댓값" />
-        </div>
-      </div>
-
-      <!-- ROE 하한 -->
-      <div class="filter-group">
-        <span class="filter-label">ROE 최소(%)</span>
-        <input type="number" id="filterRoeMin" placeholder="예: 10" min="0" step="0.1" aria-label="ROE 최솟값" />
-      </div>
-
-      <!-- 부채비율 상한 -->
-      <div class="filter-group">
-        <span class="filter-label">부채비율 최대(%)</span>
-        <input type="number" id="filterDebtMax" placeholder="예: 200" min="0" step="1" aria-label="부채비율 최댓값" />
-      </div>
-
-      <button class="btn-filter" id="filterBtn">필터 적용</button>
-      <button class="btn-reset" id="resetBtn">초기화</button>
+    <div>
+      <h1>가치투자 발굴 서비스</h1>
+      <p>재무제표 기반으로 진짜 가치있는 종목을 찾아보세요</p>
     </div>
   </section>
 
-  <!-- TOP10 탭 -->
-  <section class="top10-section" aria-label="TOP10 종목">
-    <div class="tab-header" role="tablist">
-      <button class="tab-btn active" role="tab" aria-selected="true" data-top10="value">
-        가치주 TOP10
-      </button>
-      <button class="tab-btn" role="tab" aria-selected="false" data-top10="lowPer">
-        저PER TOP10
-      </button>
-      <button class="tab-btn" role="tab" aria-selected="false" data-top10="highRoe">
-        고ROE TOP10
-      </button>
-    </div>
-    <div class="tab-content active" data-top10="value" role="tabpanel">
-      <div class="state-loading">로딩 중...</div>
-    </div>
-    <div class="tab-content" data-top10="lowPer" role="tabpanel"></div>
-    <div class="tab-content" data-top10="highRoe" role="tabpanel"></div>
+  <section class="market-section" aria-label="시장 지표">
+    <h2 class="section-title">시장 지표</h2>
+    <div class="market-grid" id="marketGrid"></div>
   </section>
 
-  <!-- 전체 종목 테이블 -->
-  <section class="stock-table-section" aria-label="전체 종목 목록">
-    <div class="section-header">
-      <h2 class="section-title">전체 종목</h2>
-      <span class="total-count" id="totalCount"></span>
-    </div>
-    <div class="table-wrap">
-      <table aria-label="종목 목록 테이블">
-        <thead>
-          <tr>
-            <th style="text-align:left; cursor:default;">종목명</th>
-            <th style="cursor:default;">시장</th>
-            <th data-sort="currentPrice">현재가</th>
-            <th data-sort="marketCap">시가총액</th>
-            <th data-sort="per">PER</th>
-            <th data-sort="pbr">PBR</th>
-            <th data-sort="roe">ROE(%)</th>
-            <th data-sort="debtRatio">부채비율(%)</th>
-          </tr>
-        </thead>
-        <tbody id="stockTableBody">
-          <tr>
-            <td colspan="8">
-              <div class="state-loading">데이터를 불러오는 중...</div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- 페이지네이션 -->
-    <nav class="pagination" id="pagination" aria-label="페이지 이동"></nav>
+  <section class="stocks-section" aria-label="주요 종목">
+    <h2 class="section-title">주요 종목</h2>
+    <div class="stocks-grid" id="stocksGrid"></div>
   </section>
 
+  <section class="ranking-section" id="ranking" aria-label="랭킹">
+    <h2 class="section-title">가치투자 랭킹</h2>
+    <div class="ranking-grid">
+      <div id="rankPer"></div>
+      <div id="rankPbr"></div>
+      <div id="rankRoe"></div>
+      <div id="rankDiv"></div>
+    </div>
+  </section>
 </main>
 
-<script src="js/stock-list.js"></script>
+<script src="js/data.js"></script>
+<script src="js/common.js"></script>
+<script src="js/home.js"></script>
 </body>
 </html>

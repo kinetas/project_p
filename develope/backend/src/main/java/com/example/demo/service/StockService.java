@@ -61,6 +61,7 @@ public class StockService {
         switch (type) {
             case "lowPer" -> stocks = stockRepository.findTop10ByPerIsNotNullOrderByPerAsc();
             case "highRoe" -> stocks = stockRepository.findTop10ByRoeIsNotNullOrderByRoeDesc();
+            case "lowPbr" -> stocks = stockRepository.findTop10ByPbrIsNotNullOrderByPbrAsc();
             default -> {
                 // value: 가치주 TOP10 (PER/PBR 낮고, ROE 높고, 부채비율 낮은 순)
                 Pageable top10 = PageRequest.of(0, 10);

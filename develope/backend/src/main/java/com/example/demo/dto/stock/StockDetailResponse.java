@@ -27,6 +27,8 @@ public class StockDetailResponse {
     private Long bps;
     private Double debtRatio;
     private Double operatingMargin;
+    private Long sharesOutstanding;
+    private Double dividendYield;
 
     public static StockDetailResponse from(StockEntity entity) {
         return StockDetailResponse.builder()
@@ -45,6 +47,8 @@ public class StockDetailResponse {
                 .bps(entity.getBps())
                 .debtRatio(entity.getDebtRatio())
                 .operatingMargin(entity.getOperatingMargin())
+                .sharesOutstanding(entity.getSharesOutstanding())
+                .dividendYield(0.0)
                 .build();
     }
 }

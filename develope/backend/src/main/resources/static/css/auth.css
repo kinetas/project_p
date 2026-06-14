@@ -1,60 +1,11 @@
-/* auth.css — 인증 페이지 공통 스타일 */
+/* auth.css — 로그인/회원가입 (ValuePick 스타일) */
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-:root {
-  --primary: #1a56db;
-  --primary-dark: #1341a8;
-  --danger: #ef4444;
-  --success: #10b981;
-  --bg: #f9fafb;
-  --surface: #ffffff;
-  --border: #e5e7eb;
-  --text-main: #111827;
-  --text-sub: #6b7280;
-  --radius: 8px;
-  --shadow: 0 4px 24px rgba(0,0,0,0.08);
-}
-
-body {
-  font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
-  color: var(--text-main);
-  font-size: 14px;
-  line-height: 1.5;
-  min-height: 100vh;
+body.auth-page {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
-/* ── Header ── */
-.header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
-
-.header-inner {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 24px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-}
-
-.brand {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--primary);
-  text-decoration: none;
-  letter-spacing: -0.5px;
-}
-
-/* ── Auth Wrap ── */
 .auth-wrap {
   flex: 1;
   display: flex;
@@ -63,23 +14,30 @@ body {
   padding: 40px 24px;
 }
 
-/* ── Auth Card ── */
 .auth-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 36px 36px 32px;
+  padding: 40px 36px 32px;
+}
+
+.auth-brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.auth-brand .brand {
+  font-size: 24px;
 }
 
 .auth-title {
   font-size: 22px;
   font-weight: 800;
-  color: var(--text-main);
-  margin-bottom: 6px;
   letter-spacing: -0.5px;
+  margin-bottom: 6px;
 }
 
 .auth-desc {
@@ -88,7 +46,6 @@ body {
   margin-bottom: 28px;
 }
 
-/* ── Form ── */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -99,37 +56,30 @@ body {
 .form-label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-main);
 }
 
 .form-input {
   width: 100%;
-  padding: 11px 14px;
+  padding: 12px 14px;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   font-size: 14px;
   outline: none;
-  background: var(--surface);
   transition: border-color 0.15s, box-shadow 0.15s;
-  color: var(--text-main);
 }
 
 .form-input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+  box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.12);
 }
 
 .form-input.error {
-  border-color: var(--danger);
-}
-
-.form-input.error:focus {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  border-color: var(--up);
 }
 
 .field-error {
   font-size: 12px;
-  color: var(--danger);
+  color: var(--up);
   display: none;
 }
 
@@ -137,21 +87,23 @@ body {
   display: block;
 }
 
-/* ── Submit Button ── */
+.password-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
 .btn-submit {
   width: 100%;
-  padding: 12px;
+  padding: 13px;
   background: var(--primary);
   color: #fff;
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   font-size: 15px;
   font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s, opacity 0.15s;
   margin-top: 8px;
   margin-bottom: 20px;
-  letter-spacing: 0.2px;
+  transition: background 0.15s, opacity 0.15s;
 }
 
 .btn-submit:hover {
@@ -163,10 +115,9 @@ body {
   cursor: not-allowed;
 }
 
-/* ── Alert ── */
 .alert {
   padding: 12px 14px;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 16px;
@@ -178,18 +129,17 @@ body {
 }
 
 .alert-error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  background: #fff0f1;
+  border: 1px solid #ffcfcf;
+  color: var(--up);
 }
 
 .alert-success {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #16a34a;
+  background: #e8faf0;
+  border: 1px solid #b8f0d0;
+  color: #00a854;
 }
 
-/* ── Link Footer ── */
 .auth-footer {
   text-align: center;
   font-size: 13px;
@@ -201,7 +151,6 @@ body {
 .auth-footer a {
   color: var(--primary);
   font-weight: 600;
-  text-decoration: none;
   margin-left: 4px;
 }
 
@@ -209,16 +158,6 @@ body {
   text-decoration: underline;
 }
 
-/* ── Password hint ── */
-.password-hint {
-  font-size: 11px;
-  color: var(--text-sub);
-  margin-top: 2px;
-}
-
-/* ── Responsive ── */
 @media (max-width: 480px) {
-  .auth-card {
-    padding: 28px 20px 24px;
-  }
+  .auth-card { padding: 28px 20px 24px; }
 }

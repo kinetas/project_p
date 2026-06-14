@@ -25,6 +25,9 @@ public interface StockRepository extends JpaRepository<StockEntity, Long> {
     Page<StockEntity> findByStockNameContainingOrStockCodeContaining(
             String stockName, String stockCode, Pageable pageable);
 
+    // 저PBR TOP10
+    List<StockEntity> findTop10ByPbrIsNotNullOrderByPbrAsc();
+
     // 가치주 TOP10: PER 낮고, PBR 낮고, ROE 높고, 부채비율 낮은 순 (복합 정렬)
     @Query("SELECT s FROM StockEntity s " +
            "WHERE s.per IS NOT NULL AND s.pbr IS NOT NULL " +

@@ -56,6 +56,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  /**
+   * API 응답(이미 정렬된 배열)으로 랭킹 HTML 생성
+   * renderRankingList 구조와 동일하되 getRanking 정렬 생략
+   */
   function buildRankingItems(stocks, key) {
     return stocks.slice(0, 8).map((s, i) => {
       const cls = changeClass(s.changeRate);
