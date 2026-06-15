@@ -29,6 +29,8 @@ public class StockDetailResponse {
     private Double operatingMargin;
     private Long sharesOutstanding;
     private Double dividendYield;
+    private Long changeAmount;
+    private Double changeRate;
 
     public static StockDetailResponse from(StockEntity entity) {
         return StockDetailResponse.builder()
@@ -39,6 +41,8 @@ public class StockDetailResponse {
                 .listingDate(entity.getListingDate())
                 .ceoName(entity.getCeoName())
                 .currentPrice(entity.getCurrentPrice())
+                .changeAmount(entity.getChangeAmount() != null ? entity.getChangeAmount() : 0L)
+                .changeRate(entity.getChangeRate() != null ? entity.getChangeRate() : 0.0)
                 .marketCap(entity.getMarketCap())
                 .per(entity.getPer())
                 .pbr(entity.getPbr())

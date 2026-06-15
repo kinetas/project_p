@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,116 +23,158 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class KrxCollectorService {
 
-    private static final String KRX_BASE_URL = "https://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd";
+    private static final String FSC_API_URL =
+            "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo";
+    private static final int PAGE_SIZE = 1000;
 
     private final RestTemplate restTemplate;
     private final StockRepository stockRepository;
 
-    @Value("${krx.api.key}")
-    private String krxApiKey;
+    @Value("${fsc.api.key}")
+    private String fscApiKey;
 
     /**
-     * KRX 주식시세 데이터 수집
-     * - 코스피(STK) / 코스닥(KSQ) 전체 종목의 종목코드, 종목명, 현재가, 시가총액, 발행주식수 수집
-     * - StockEntity 생성 또는 업데이트 후 저장
+     * 금융위원회 주식시세 API — KOSPI/KOSDAQ 전체 종목 수집
      */
     public void collectStockList() {
-        collectByMarket("STK", "KOSPI");
-        collectByMarket("KSQ", "KOSDAQ");
+        String basDt = getLastTradingDay();
+        log.info("[FSC] 기준일자: {}", basDt);
+        collectByMarket("KOSPI", basDt);
+        collectByMarket("KOSDAQ", basDt);
     }
 
-    private void collectByMarket(String marketCode, String marketName) {
+    private void collectByMarket(String market, String basDt) {
         try {
-            String url = UriComponentsBuilder.fromHttpUrl(KRX_BASE_URL)
-                    .queryParam("bld", "dbms/MDC/STAT/standard/MDCSTAT01501")
-                    .queryParam("mktId", marketCode)
-                    .queryParam("trdDd", getCurrentDateString())
-                    .queryParam("auth", krxApiKey)
-                    .toUriString();
+            int pageNo = 1;
+            int totalCount = Integer.MAX_VALUE;
 
-            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+            while ((pageNo - 1) * PAGE_SIZE < totalCount) {
+                String url = UriComponentsBuilder.fromHttpUrl(FSC_API_URL)
+                        .queryParam("serviceKey", fscApiKey)
+                        .queryParam("numOfRows", PAGE_SIZE)
+                        .queryParam("pageNo", pageNo)
+                        .queryParam("resultType", "json")
+                        .queryParam("mrktCls", market)
+                        .queryParam("basDt", basDt)
+                        .build(false)
+                        .toUriString();
 
-            if (response.getBody() == null) {
-                log.warn("[KRX] {} 응답 body가 null입니다.", marketName);
-                return;
-            }
+                ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+                if (response.getBody() == null) break;
 
-            Object outBlockObj = response.getBody().get("OutBlock_1");
-            if (!(outBlockObj instanceof List)) {
-                log.warn("[KRX] {} 데이터 파싱 실패 — OutBlock_1 없음", marketName);
-                return;
-            }
+                Map<String, Object> body = extractBody(response.getBody());
+                if (body == null) break;
 
-            List<Map<String, Object>> items = (List<Map<String, Object>>) outBlockObj;
-            log.info("[KRX] {} 종목 수집 시작 — 총 {}건", marketName, items.size());
+                Object tc = body.get("totalCount");
+                if (tc == null) break;
+                totalCount = Integer.parseInt(tc.toString());
 
-            for (Map<String, Object> item : items) {
-                try {
-                    String stockCode = parseString(item, "ISU_SRT_CD");
-                    String stockName = parseString(item, "ISU_ABBRV");
-                    Long currentPrice = parseLong(item, "TDD_CLSPRC");
-                    Long marketCap = parseLong(item, "MKTCAP");
-                    Long sharesOutstanding = parseLong(item, "LIST_SHRS");
+                Map<String, Object> items = (Map<String, Object>) body.get("items");
+                if (items == null) break;
 
-                    if (stockCode == null || stockName == null) {
-                        continue;
-                    }
+                Object itemObj = items.get("item");
+                if (!(itemObj instanceof List)) break;
 
-                    Optional<StockEntity> existingOpt = stockRepository.findByStockCode(stockCode);
+                List<Map<String, Object>> itemList = (List<Map<String, Object>>) itemObj;
+                if (itemList.isEmpty()) break;
 
-                    StockEntity entity;
-                    if (existingOpt.isPresent()) {
-                        StockEntity existing = existingOpt.get();
-                        entity = StockEntity.builder()
-                                .id(existing.getId())
-                                .stockCode(existing.getStockCode())
-                                .stockName(stockName)
-                                .market(marketName)
-                                .sector(existing.getSector())
-                                .listingDate(existing.getListingDate())
-                                .ceoName(existing.getCeoName())
-                                .currentPrice(currentPrice)
-                                .marketCap(marketCap)
-                                .sharesOutstanding(sharesOutstanding)
-                                .per(existing.getPer())
-                                .pbr(existing.getPbr())
-                                .roe(existing.getRoe())
-                                .eps(existing.getEps())
-                                .bps(existing.getBps())
-                                .debtRatio(existing.getDebtRatio())
-                                .operatingMargin(existing.getOperatingMargin())
-                                .dartCorpCode(existing.getDartCorpCode())
-                                .updatedAt(LocalDateTime.now())
-                                .build();
-                    } else {
-                        entity = StockEntity.builder()
-                                .stockCode(stockCode)
-                                .stockName(stockName)
-                                .market(marketName)
-                                .currentPrice(currentPrice)
-                                .marketCap(marketCap)
-                                .sharesOutstanding(sharesOutstanding)
-                                .updatedAt(LocalDateTime.now())
-                                .build();
-                    }
-
-                    stockRepository.save(entity);
-
-                } catch (Exception e) {
-                    log.error("[KRX] 개별 종목 처리 중 오류: {}", e.getMessage());
+                log.info("[FSC] {} page={} size={}", market, pageNo, itemList.size());
+                for (Map<String, Object> item : itemList) {
+                    saveStock(item, market);
                 }
+
+                pageNo++;
             }
 
-            log.info("[KRX] {} 수집 완료", marketName);
+            log.info("[FSC] {} 수집 완료", market);
 
         } catch (Exception e) {
-            log.error("[KRX] {} 데이터 수집 실패 — graceful fallback: {}", marketName, e.getMessage());
+            log.error("[FSC] {} 데이터 수집 실패 — graceful fallback: {}", market, e.getMessage());
         }
     }
 
-    private String getCurrentDateString() {
-        java.time.LocalDate today = java.time.LocalDate.now();
-        return today.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> extractBody(Map<?, ?> raw) {
+        try {
+            Map<String, Object> response = (Map<String, Object>) raw.get("response");
+            if (response == null) return null;
+            return (Map<String, Object>) response.get("body");
+        } catch (ClassCastException e) {
+            log.warn("[FSC] 응답 구조 파싱 실패: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private void saveStock(Map<String, Object> item, String market) {
+        try {
+            String stockCode = parseString(item, "srtnCd");
+            String stockName = parseString(item, "itmsNm");
+
+            if (stockCode == null || stockName == null) return;
+
+            Long currentPrice     = parseLong(item, "clpr");
+            Long changeAmount     = parseLong(item, "vs");
+            Double changeRate     = parseDouble(item, "fltRt");
+            Long marketCap        = parseLong(item, "mrktTotAmt");
+            Long sharesOutstanding = parseLong(item, "lstgStCnt");
+
+            Optional<StockEntity> existingOpt = stockRepository.findByStockCode(stockCode);
+
+            StockEntity entity;
+            if (existingOpt.isPresent()) {
+                StockEntity e = existingOpt.get();
+                entity = StockEntity.builder()
+                        .id(e.getId())
+                        .stockCode(e.getStockCode())
+                        .stockName(stockName)
+                        .market(market)
+                        .sector(e.getSector())
+                        .listingDate(e.getListingDate())
+                        .ceoName(e.getCeoName())
+                        .currentPrice(currentPrice)
+                        .changeAmount(changeAmount)
+                        .changeRate(changeRate)
+                        .marketCap(marketCap)
+                        .sharesOutstanding(sharesOutstanding)
+                        .per(e.getPer())
+                        .pbr(e.getPbr())
+                        .roe(e.getRoe())
+                        .eps(e.getEps())
+                        .bps(e.getBps())
+                        .debtRatio(e.getDebtRatio())
+                        .operatingMargin(e.getOperatingMargin())
+                        .dartCorpCode(e.getDartCorpCode())
+                        .updatedAt(LocalDateTime.now())
+                        .build();
+            } else {
+                entity = StockEntity.builder()
+                        .stockCode(stockCode)
+                        .stockName(stockName)
+                        .market(market)
+                        .currentPrice(currentPrice)
+                        .changeAmount(changeAmount)
+                        .changeRate(changeRate)
+                        .marketCap(marketCap)
+                        .sharesOutstanding(sharesOutstanding)
+                        .updatedAt(LocalDateTime.now())
+                        .build();
+            }
+
+            stockRepository.save(entity);
+
+        } catch (Exception e) {
+            log.error("[FSC] 개별 종목 처리 오류: {}", e.getMessage());
+        }
+    }
+
+    /** 가장 최근 평일 (주말 제외, 공휴일 미처리) */
+    private String getLastTradingDay() {
+        LocalDate date = LocalDate.now().minusDays(1);
+        while (date.getDayOfWeek() == DayOfWeek.SATURDAY
+                || date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            date = date.minusDays(1);
+        }
+        return date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
     }
 
     private String parseString(Map<String, Object> item, String key) {
@@ -141,8 +186,17 @@ public class KrxCollectorService {
         try {
             Object val = item.get(key);
             if (val == null) return null;
-            String str = val.toString().replace(",", "").trim();
-            return Long.parseLong(str);
+            return Long.parseLong(val.toString().replace(",", "").trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private Double parseDouble(Map<String, Object> item, String key) {
+        try {
+            Object val = item.get(key);
+            if (val == null) return null;
+            return Double.parseDouble(val.toString().replace(",", "").trim());
         } catch (NumberFormatException e) {
             return null;
         }

@@ -64,7 +64,7 @@ public class DataCollectionScheduler {
                 log.info("[Scheduler] Step 3 — corp_code 매핑 전체 완료 상태, skip");
             }
 
-            // Step 4 & 5: 종목별 재무 수집 + 지표 계산
+            // Step 4, 5 & 6: 종목별 기업개황 + 재무 수집 + 지표 계산
             int currentYear = LocalDate.now().getYear();
             int[] targetYears = {currentYear - 1, currentYear - 2, currentYear - 3, currentYear - 4, currentYear - 5};
 
@@ -77,12 +77,15 @@ public class DataCollectionScheduler {
                     continue;
                 }
 
-                // Step 4: 최근 5년 재무 수집
+                // Step 4: 기업개황 수집 (CEO, 업종코드)
+                dartCollectorService.fetchCompanyInfo(dartCorpCode, stockCode);
+
+                // Step 5: 최근 5년 재무 수집
                 for (int year : targetYears) {
                     dartCollectorService.collectFinancials(dartCorpCode, stockCode, year);
                 }
 
-                // Step 5: 투자지표 계산 및 저장
+                // Step 6: 투자지표 계산 및 저장
                 indicatorCalculationService.calculateAndSave(stockCode);
             }
 

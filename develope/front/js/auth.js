@@ -30,7 +30,8 @@ function setFieldError(id, message) {
 }
 
 async function apiCall(url, body) {
-  const res = await fetch(url, {
+  const base = typeof API_BASE !== 'undefined' ? API_BASE : '';
+  const res = await fetch(base + url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

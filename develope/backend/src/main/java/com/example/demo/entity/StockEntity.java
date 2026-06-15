@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class StockEntity {
 
     @Id
@@ -39,6 +39,12 @@ public class StockEntity {
 
     @Column(name = "current_price")
     private Long currentPrice;
+
+    @Column(name = "change_amount")
+    private Long changeAmount;
+
+    @Column(name = "change_rate")
+    private Double changeRate;
 
     @Column(name = "market_cap")
     private Long marketCap;

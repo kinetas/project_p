@@ -32,8 +32,8 @@ public class StockListResponse {
                 .pbr(entity.getPbr())
                 .roe(entity.getRoe())
                 .debtRatio(entity.getDebtRatio())
-                .changeRate(0.0)
-                .changeAmount(0L)
+                .changeRate(entity.getChangeRate() != null ? entity.getChangeRate() : 0.0)
+                .changeAmount(entity.getChangeAmount() != null ? entity.getChangeAmount() : 0L)
                 .dividendYield(0.0)
                 .build();
     }
