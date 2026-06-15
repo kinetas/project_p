@@ -81,10 +81,10 @@ function renderStockCard(stock) {
       </div>
       <div class="stock-metrics">
         <div class="metric-item"><div class="metric-label">시가총액</div><div class="metric-value">${formatMarketCap(stock.marketCap)}</div></div>
-        <div class="metric-item"><div class="metric-label">PER</div><div class="metric-value">${stock.per}</div></div>
-        <div class="metric-item"><div class="metric-label">PBR</div><div class="metric-value">${stock.pbr}</div></div>
-        <div class="metric-item"><div class="metric-label">ROE</div><div class="metric-value">${stock.roe}%</div></div>
-        <div class="metric-item"><div class="metric-label">배당수익률</div><div class="metric-value">${stock.dividendYield}%</div></div>
+        <div class="metric-item"><div class="metric-label">PER</div><div class="metric-value">${fmt2(stock.per)}</div></div>
+        <div class="metric-item"><div class="metric-label">PBR</div><div class="metric-value">${fmt2(stock.pbr)}</div></div>
+        <div class="metric-item"><div class="metric-label">ROE</div><div class="metric-value">${fmt2(stock.roe, '%')}</div></div>
+        <div class="metric-item"><div class="metric-label">배당수익률</div><div class="metric-value">${fmt2(stock.dividendYield, '%')}</div></div>
       </div>
     </article>
   `;
@@ -109,8 +109,8 @@ function renderRankingList(stocks, key, label) {
     .map((s, i) => {
       const cls = changeClass(s.changeRate);
       const value = key === 'roe' || key === 'dividendYield'
-        ? s[key] + '%'
-        : s[key];
+        ? fmt2(s[key], '%')
+        : fmt2(s[key]);
       return `
         <div class="rank-item" data-code="${s.code}" role="button" tabindex="0">
           <div class="rank-left">

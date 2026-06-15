@@ -88,10 +88,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           <td>${formatPrice(s.price)}</td>
           <td class="${cls}">${formatChange(s.changeRate)}</td>
           <td>${formatMarketCap(s.marketCap)}</td>
-          <td>${s.per}</td>
-          <td>${s.pbr}</td>
-          <td>${s.roe}%</td>
-          <td>${s.dividendYield}%</td>
+          <td>${fmt2(s.per)}</td>
+          <td>${fmt2(s.pbr)}</td>
+          <td>${fmt2(s.roe, '%')}</td>
+          <td>${fmt2(s.dividendYield, '%')}</td>
         </tr>
       `;
     }).join('');

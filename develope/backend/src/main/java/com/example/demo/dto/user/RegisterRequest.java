@@ -18,8 +18,5 @@ public class RegisterRequest {
     @Size(min = 8)
     private String password;
 
-    @NotBlank
-    private String passwordConfirm;
-
     private String nickname;
 }

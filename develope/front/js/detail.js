@@ -61,10 +61,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>
       <div class="summary-metrics">
         <div class="summary-metric"><div class="label">시가총액</div><div class="value">${formatMarketCap(stock.marketCap)}</div></div>
-        <div class="summary-metric"><div class="label">PER</div><div class="value">${stock.per}</div></div>
-        <div class="summary-metric"><div class="label">PBR</div><div class="value">${stock.pbr}</div></div>
-        <div class="summary-metric"><div class="label">ROE</div><div class="value">${stock.roe}%</div></div>
-        <div class="summary-metric"><div class="label">배당수익률</div><div class="value">${stock.dividendYield}%</div></div>
+        <div class="summary-metric"><div class="label">PER</div><div class="value">${fmt2(stock.per)}</div></div>
+        <div class="summary-metric"><div class="label">PBR</div><div class="value">${fmt2(stock.pbr)}</div></div>
+        <div class="summary-metric"><div class="label">ROE</div><div class="value">${fmt2(stock.roe, '%')}</div></div>
+        <div class="summary-metric"><div class="label">배당수익률</div><div class="value">${fmt2(stock.dividendYield, '%')}</div></div>
         <div class="summary-metric"><div class="label">주식발행수</div><div class="value">${stock.shares}</div></div>
       </div>
     </section>
@@ -97,13 +97,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="financial-block">
         <h3>투자지표</h3>
         <div class="indicator-grid">
-          <div class="indicator-card"><div class="label">PER (주가수익비율)</div><div class="value">${stock.per}</div><div class="hint">낮을수록 저평가</div></div>
-          <div class="indicator-card"><div class="label">PBR (주가순자산비율)</div><div class="value">${stock.pbr}</div><div class="hint">낮을수록 저평가</div></div>
-          <div class="indicator-card"><div class="label">ROE (자기자본이익률)</div><div class="value">${stock.roe}%</div><div class="hint">높을수록 좋음</div></div>
-          <div class="indicator-card"><div class="label">배당수익률</div><div class="value">${stock.dividendYield}%</div><div class="hint">배당금/주가</div></div>
-          <div class="indicator-card"><div class="label">EPS (주당순이익)</div><div class="value">${stock.eps.toLocaleString()}원</div><div class="hint">높을수록 좋음</div></div>
-          <div class="indicator-card"><div class="label">BPS (주당순자산)</div><div class="value">${stock.bps.toLocaleString()}원</div><div class="hint">높을수록 좋음</div></div>
-          <div class="indicator-card"><div class="label">부채비율</div><div class="value">${stock.debtRatio}%</div><div class="hint">낮을수록 안정적</div></div>
+          <div class="indicator-card"><div class="label">PER (주가수익비율)</div><div class="value">${fmt2(stock.per)}</div><div class="hint">낮을수록 저평가</div></div>
+          <div class="indicator-card"><div class="label">PBR (주가순자산비율)</div><div class="value">${fmt2(stock.pbr)}</div><div class="hint">낮을수록 저평가</div></div>
+          <div class="indicator-card"><div class="label">ROE (자기자본이익률)</div><div class="value">${fmt2(stock.roe, '%')}</div><div class="hint">높을수록 좋음</div></div>
+          <div class="indicator-card"><div class="label">배당수익률</div><div class="value">${fmt2(stock.dividendYield, '%')}</div><div class="hint">배당금/주가</div></div>
+          <div class="indicator-card"><div class="label">EPS (주당순이익)</div><div class="value">${stock.eps != null ? stock.eps.toLocaleString() : '-'}원</div><div class="hint">높을수록 좋음</div></div>
+          <div class="indicator-card"><div class="label">BPS (주당순자산)</div><div class="value">${stock.bps != null ? stock.bps.toLocaleString() : '-'}원</div><div class="hint">높을수록 좋음</div></div>
+          <div class="indicator-card"><div class="label">부채비율</div><div class="value">${fmt2(stock.debtRatio, '%')}</div><div class="hint">낮을수록 안정적</div></div>
           <div class="indicator-card"><div class="label">영업이익</div><div class="value">${stock.operatingProfit.toLocaleString()}억</div><div class="hint">최근 연도 기준</div></div>
         </div>
       </div>
@@ -199,8 +199,14 @@ function renderTable(title, rows, years) {
   const headerCells = years.map((y) => `<th>${y}</th>`).join('');
   const bodyRows = rows.map((row) => {
     const cells = row.data.map((v) => {
+      if (v == null) return '<td>-</td>';
       const suffix = row.suffix || (row.label.includes('PER') || row.label.includes('PBR') ? '' : '억');
-      return `<td>${typeof v === 'number' ? v.toLocaleString() : v}${suffix === '%' ? '%' : suffix === '억' ? '억' : ''}</td>`;
+      const isDecimal = suffix === '%' || suffix === '';
+      const display = isDecimal
+        ? Number(v).toFixed(2)
+        : Math.round(v).toLocaleString('ko-KR');
+      const unit = suffix === '%' ? '%' : suffix === '억' ? '억' : '';
+      return `<td>${display}${unit}</td>`;
     }).join('');
     return `<tr><td>${row.label}</td>${cells}</tr>`;
   }).join('');

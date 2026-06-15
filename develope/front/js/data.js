@@ -5,7 +5,13 @@ function formatPrice(price) {
 }
 
 function formatMarketCap(cap) {
-  return cap.toLocaleString('ko-KR') + '억';
+  if (cap == null) return '-';
+  return Math.round(cap / 10000).toLocaleString('ko-KR') + '만원';
+}
+
+function fmt2(v, suffix = '') {
+  if (v == null || isNaN(Number(v))) return '-';
+  return Number(v).toFixed(2) + suffix;
 }
 
 function formatChange(rate) {
