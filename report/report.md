@@ -1,6 +1,6 @@
 # Project Report
 
-Last Update: 2026-06-18 (TASK-032, TASK-033, TASK-034 완료 반영)
+Last Update: 2026-06-18 (TASK-035 ~ TASK-040 완료 반영)
 
 ---
 
@@ -22,7 +22,8 @@ Last Update: 2026-06-18 (TASK-032, TASK-033, TASK-034 완료 반영)
 - TASK-032 완료: StockEntity에 isinCd 필드 추가, KrxCollectorService isinCd 파싱/저장 연동
 - TASK-033 완료: 배당정보 Entity/Repository/CollectorService 신규 생성 (DividendId, DividendEntity, DividendRepository, DividendCollectorService)
 - TASK-034 완료: DataCollectionScheduler에 배당정보 수집 Step 2 추가, 전체 파이프라인 7단계로 확장
-- 프로젝트 전체 개발 완료 + 배당 데이터 파이프라인 추가
+- TASK-035~040 완료: 단일 테이블 구조 → 분리 구조 전환 (Entity/Repository 리팩토링, Service/DTO/Scheduler 전면 재작성, schema.sql 교체)
+- 프로젝트 전체 개발 완료 + 배당 데이터 파이프라인 추가 + 신규 스키마 기반 리팩토링 완료
 
 ## Overall Completion
 - Planning: 100%
@@ -47,14 +48,81 @@ Last Update: 2026-06-18 (TASK-032, TASK-033, TASK-034 완료 반영)
 | isinCd 필드 추가 (TASK-032) | backend-developer | 완료 |
 | 배당정보 파이프라인 구축 (TASK-033) | backend-developer | 완료 |
 | Scheduler 배당 수집 연동 (TASK-034) | backend-developer | 완료 |
+| Entity/Repository 리팩토링 (TASK-035) | backend-developer | 완료 |
+| KrxCollectorService 신규 엔티티 교체 (TASK-036) | backend-developer | 완료 |
+| DartCollectorService 신규 엔티티 교체 (TASK-037) | backend-developer | 완료 |
+| IndicatorCalculationService 재작성 (TASK-038) | backend-developer | 완료 |
+| StockService/DTO 리팩토링 (TASK-039) | backend-developer | 완료 |
+| schema.sql 교체 및 Scheduler 파이프라인 재정비 (TASK-040) | backend-developer | 완료 |
 
-전체 세그먼트 완료 + 배당 데이터 파이프라인 추가 작업 완료
+전체 세그먼트 완료 + 배당 데이터 파이프라인 추가 + 신규 스키마 기반 전면 리팩토링 완료
 
 ---
 
 # Patch Notes
 
-## 2026-06-18
+## 2026-06-18 (TASK-035 ~ TASK-040: Entity/Repository 리팩토링)
+
+### 개요
+가치투자 종목 발굴 서비스의 단일 테이블 구조(StockEntity, FinancialEntity)를 신규 스키마 기반 분리 구조(CompanyEntity, StockPriceEntity, FinancialStatementEntity, StockIndicatorEntity)로 전환.
+
+---
+
+- TASK-035 (Entity/Repository 리팩토링): 구 엔티티 4개 삭제, 신규 Entity/Repository 10개 생성 — 완료
+  - 생성 파일:
+    - entity/CompanyEntity.java (company 테이블, PK: corp_code)
+    - entity/StockPriceId.java (stock_price 복합 PK: basDt, srtnCd)
+    - entity/StockPriceEntity.java (stock_price 테이블, EmbeddedId)
+    - entity/FinancialStatementEntity.java (financial_statement 테이블, uq_fs unique constraint)
+    - entity/StockIndicatorId.java (stock_indicator 복합 PK: stock_code, calc_year)
+    - entity/StockIndicatorEntity.java (stock_indicator 테이블, EmbeddedId)
+    - repository/CompanyRepository.java (findByStockCode)
+    - repository/StockPriceRepository.java (findTopByIdSrtnCdOrderByIdBasDtDesc)
+    - repository/FinancialStatementRepository.java (JPQL 포함 4개 쿼리 메서드)
+    - repository/StockIndicatorRepository.java (findByIdStockCode, findTopByIdStockCodeOrderByIdCalcYearDesc)
+  - 삭제 파일: entity/StockEntity.java, entity/FinancialEntity.java, repository/StockRepository.java, repository/FinancialRepository.java
+  - 토큰 소모량: 약 10,500 tokens (입력 6,000 + 출력 4,500)
+
+- TASK-036 (KrxCollectorService 신규 엔티티 교체): StockEntity/StockRepository → CompanyEntity+StockPriceEntity 기반으로 완전 교체 — 완료
+  - 수정 파일: service/KrxCollectorService.java
+  - 주요 변경: saveStock(item, market) → saveStock(item, market, basDt), company UPSERT(toBuilder), stock_price saveAndFlush UPSERT, convertCorpCls() 메서드 추가, parseBigDecimal() 추가
+  - 토큰 소모량: 약 4,700 tokens (입력 3,500 + 출력 1,200)
+
+- TASK-037 (DartCollectorService 신규 엔티티 교체): StockRepository/FinancialRepository → CompanyRepository/FinancialStatementRepository 기반으로 전면 재작성 — 완료
+  - 수정 파일: service/DartCollectorService.java
+  - 주요 변경: fetchCorpCodes() → CompanyEntity UPSERT(corp_code/stock_code/corp_name/corp_cls 4필드), fetchCompanyInfo() 제거(company 테이블 컬럼 없음), collectFinancials() → FinancialStatementEntity 전 행 saveAll(deleteAll+saveAll UPSERT), parseAmount()/parseOrd()/parseAndUpsertCorpCodes() 헬퍼 추가
+  - 토큰 소모량: 약 5,700 tokens (입력 4,500 + 출력 1,200)
+
+- TASK-038 (IndicatorCalculationService 재작성): StockRepository/FinancialRepository → 4개 신규 Repository 기반으로 전면 재작성, DividendRepository 메서드 추가 — 완료
+  - 수정 파일:
+    - service/IndicatorCalculationService.java (CompanyRepository, StockPriceRepository, FinancialStatementRepository, StockIndicatorRepository, DividendRepository 5개 의존성, CFS 우선/OFS 폴백, BigDecimal EPS/BPS/PER/PBR/ROE/영업이익률/부채비율/배당수익률 계산, StockIndicatorEntity UPSERT)
+    - repository/DividendRepository.java (findTopByIdIsinCdOrderByIdBasDtDesc 추가)
+  - 토큰 소모량: 약 10,500 tokens (입력 8,000 + 출력 2,500)
+
+- TASK-039 (StockService/DTO 리팩토링): StockRepository/FinancialRepository 의존성 제거, 신규 4개 Repository 기반으로 Service/DTO 전면 수정 — 완료
+  - 수정 파일:
+    - service/StockService.java (getStockList: CompanyRepository.findAll() 기반, getStockDetail: 3개 레포지토리 조회, getTop10: type별 정렬 후 상위 10개, getFinancials: 최근 5년 account_nm 집계)
+    - dto/stock/StockListResponse.java (from(StockEntity) 제거 → from(CompanyEntity, StockPriceEntity, StockIndicatorEntity) 추가)
+    - dto/stock/StockDetailResponse.java (from(StockEntity) 제거 → from(CompanyEntity, StockPriceEntity, StockIndicatorEntity) 추가)
+    - dto/stock/FinancialResponse.java (from(FinancialEntity) 제거, 필드 축소: year/revenue/operatingProfit/netIncome)
+  - 토큰 소모량: 약 7,500 tokens (입력 4,000 + 출력 3,500)
+
+- TASK-040 (schema.sql 교체 및 Scheduler 파이프라인 재정비): schema.sql 신규 생성, DataCollectionScheduler 파이프라인 순서 재정비 및 CompanyRepository 교체 — 완료
+  - 생성 파일: develope/backend/src/main/resources/schema.sql (doc/schema.sql 내용 복사, 11개 테이블 정의)
+  - 수정 파일: config/DataCollectionScheduler.java (StockRepository → CompanyRepository 교체, 파이프라인 순서 변경: Step1 DART→Step2 KRX→Step3 재무→Step4 배당→Step5 지표)
+  - 토큰 소모량: 약 8,000 tokens (입력 5,000 + 출력 3,000)
+
+### TASK-035~040 총 예상 토큰 소모량
+- TASK-035: 약 10,500 tokens
+- TASK-036: 약 4,700 tokens
+- TASK-037: 약 5,700 tokens
+- TASK-038: 약 10,500 tokens
+- TASK-039: 약 7,500 tokens
+- TASK-040: 약 8,000 tokens
+- **합계: 약 46,900 tokens**
+
+---
+
 - TASK-032 (isinCd 필드 추가): StockEntity에 `isinCd` 필드 추가, KrxCollectorService `saveStock()` 파싱/빌더 체인 연동 — 완료
   - 수정 파일:
     - entity/StockEntity.java (`isinCd` 필드 추가, `@Column(name="isin_cd")`)
@@ -168,6 +236,12 @@ Last Update: 2026-06-18 (TASK-032, TASK-033, TASK-034 완료 반영)
 | backend-developer | TASK-032 완료 — StockEntity isinCd 필드 추가, KrxCollectorService 파싱/빌더 연동 (~4,300 tokens) |
 | backend-developer | TASK-033 완료 — DividendId, DividendEntity, DividendRepository, DividendCollectorService 신규 생성 (~6,500 tokens) |
 | backend-developer | TASK-034 완료 — DataCollectionScheduler 배당 수집 Step 2 추가, 파이프라인 7단계 확장 (~3,700 tokens) |
+| backend-developer | TASK-035 완료 — 신규 Entity 6개/Repository 4개 생성, 구 Entity/Repository 4개 삭제 (~10,500 tokens) |
+| backend-developer | TASK-036 완료 — KrxCollectorService: StockEntity → CompanyEntity+StockPriceEntity 교체 (~4,700 tokens) |
+| backend-developer | TASK-037 완료 — DartCollectorService: 신규 스키마 기반 전면 재작성, fetchCompanyInfo() 제거 (~5,700 tokens) |
+| backend-developer | TASK-038 완료 — IndicatorCalculationService 재작성, DividendRepository 메서드 추가 (~10,500 tokens) |
+| backend-developer | TASK-039 완료 — StockService 재작성, StockListResponse/StockDetailResponse/FinancialResponse DTO 수정 (~7,500 tokens) |
+| backend-developer | TASK-040 완료 — schema.sql 신규 생성(11개 테이블), DataCollectionScheduler 파이프라인 재정비 (~8,000 tokens) |
 
 ---
 
@@ -188,3 +262,9 @@ Last Update: 2026-06-18 (TASK-032, TASK-033, TASK-034 완료 반영)
 - TASK-032_backend-developer.md (StockEntity isinCd 필드 추가, KrxCollectorService isinCd 파싱/저장 연동)
 - TASK-033_backend-developer.md (DividendId/DividendEntity/DividendRepository/DividendCollectorService 신규 생성)
 - TASK-034_backend-developer.md (DataCollectionScheduler 배당 수집 Step 2 추가, 파이프라인 7단계 확장)
+- TASK-035_backend-developer.md (CompanyEntity/StockPriceEntity/FinancialStatementEntity/StockIndicatorEntity + Repository 4종 생성, StockEntity/FinancialEntity 삭제)
+- TASK-036_backend-developer.md (KrxCollectorService: CompanyEntity+StockPriceEntity 기반 교체, convertCorpCls()/parseBigDecimal() 추가)
+- TASK-037_backend-developer.md (DartCollectorService: CompanyEntity UPSERT, FinancialStatementEntity 전 행 저장, fetchCompanyInfo() 제거)
+- TASK-038_backend-developer.md (IndicatorCalculationService 재작성, DividendRepository findTopByIdIsinCdOrderByIdBasDtDesc 추가)
+- TASK-039_backend-developer.md (StockService 재작성, StockListResponse/StockDetailResponse/FinancialResponse DTO 수정)
+- TASK-040_backend-developer.md (schema.sql 11개 테이블 신규 생성, DataCollectionScheduler DART→KRX→재무→배당→지표 파이프라인 재정비)

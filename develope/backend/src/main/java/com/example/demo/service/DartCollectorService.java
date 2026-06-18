@@ -1,22 +1,24 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.FinancialEntity;
-import com.example.demo.entity.StockEntity;
-import com.example.demo.repository.FinancialRepository;
-import com.example.demo.repository.StockRepository;
+import com.example.demo.entity.CompanyEntity;
+import com.example.demo.entity.FinancialStatementEntity;
+import com.example.demo.repository.CompanyRepository;
+import com.example.demo.repository.FinancialStatementRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import org.springframework.transaction.annotation.Propagation;
+
 import java.io.ByteArrayInputStream;
-import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,26 +30,27 @@ import java.util.zip.ZipInputStream;
 @RequiredArgsConstructor
 public class DartCollectorService {
 
-    private static final String DART_BASE_URL    = "https://opendart.fss.or.kr/api";
-    private static final String CORP_CODE_URL    = DART_BASE_URL + "/corpCode.xml";
-    private static final String COMPANY_URL      = DART_BASE_URL + "/company.json";
-    private static final String MULTI_ACNT_URL   = DART_BASE_URL + "/fnlttMultiAcnt.json";
+    private static final String DART_BASE_URL  = "https://opendart.fss.or.kr/api";
+    private static final String CORP_CODE_URL  = DART_BASE_URL + "/corpCode.xml";
+    private static final String MULTI_ACNT_URL = DART_BASE_URL + "/fnlttMultiAcnt.json";
 
     private final RestTemplate restTemplate;
-    private final StockRepository stockRepository;
-    private final FinancialRepository financialRepository;
+    private final CompanyRepository companyRepository;
+    private final FinancialStatementRepository financialStatementRepository;
 
     @Value("${dart.api.key}")
     private String dartApiKey;
 
     // ──────────────────────────────────────────────────────────
-    // 1. corp_code 매핑 (기존 유지)
+    // 1. corp_code 매핑
     // ──────────────────────────────────────────────────────────
 
     /**
      * DART corp_code.zip 다운로드 및 파싱
-     * stockCode → dartCorpCode 매핑 후 StockEntity 업데이트
+     * corp_code, stock_code, corp_name, corp_cls → CompanyEntity UPSERT
+     * stock_code가 비어 있으면 스킵 (상장사만)
      */
+    @Transactional
     public void fetchCorpCodes() {
         try {
             String url = CORP_CODE_URL + "?crtfc_key=" + dartApiKey;
@@ -58,21 +61,8 @@ public class DartCollectorService {
                 return;
             }
 
-            Map<String, String> stockToCorpMap = parseCorpCodeZip(zipBytes);
-            log.info("[DART] corp_code 파싱 완료 — 매핑 수: {}", stockToCorpMap.size());
-
-            List<StockEntity> stocks = stockRepository.findAll();
-            for (StockEntity stock : stocks) {
-                String corpCode = stockToCorpMap.get(stock.getStockCode());
-                if (corpCode != null && !corpCode.equals(stock.getDartCorpCode())) {
-                    stockRepository.save(stock.toBuilder()
-                            .dartCorpCode(corpCode)
-                            .updatedAt(LocalDateTime.now())
-                            .build());
-                }
-            }
-
-            log.info("[DART] corp_code 매핑 완료");
+            int upsertCount = parseAndUpsertCorpCodes(zipBytes);
+            log.info("[DART] corp_code UPSERT 완료 — 처리 수: {}", upsertCount);
 
         } catch (Exception e) {
             log.error("[DART] corp_code 수집 실패 — graceful fallback: {}", e.getMessage());
@@ -80,61 +70,21 @@ public class DartCollectorService {
     }
 
     // ──────────────────────────────────────────────────────────
-    // 2. 기업개황 — company.json (기업.txt 기반)
+    // 2. 기업개황 — no-op (company 테이블에 ceoName/sector 컬럼 없음)
+    // ──────────────────────────────────────────────────────────
+
+    // fetchCompanyInfo() 제거됨 — company 테이블 스키마에 ceoName/sector 없음
+
+    // ──────────────────────────────────────────────────────────
+    // 3. 다중회사 주요계정 — fnlttMultiAcnt.json
     // ──────────────────────────────────────────────────────────
 
     /**
-     * GET /api/company.json — 기업개황 조회
-     * ceoName, sector(업종코드) 를 StockEntity에 반영
+     * GET /api/fnlttMultiAcnt.json — DART API 응답 list의 모든 row를
+     * FinancialStatementEntity로 저장.
+     * 기존 데이터(stockCode + bsnsYear)는 전부 삭제 후 재저장 (UPSERT).
      */
-    public void fetchCompanyInfo(String dartCorpCode, String stockCode) {
-        try {
-            String url = COMPANY_URL
-                    + "?crtfc_key=" + dartApiKey
-                    + "&corp_code=" + dartCorpCode;
-
-            Map response = restTemplate.getForObject(url, Map.class);
-
-            if (response == null || !"000".equals(response.get("status"))) {
-                log.warn("[DART] company.json 오류 — stockCode: {}, status: {}",
-                        stockCode, response != null ? response.get("status") : "null");
-                return;
-            }
-
-            String ceoName    = parseStr(response, "ceo_nm");
-            String sector     = parseStr(response, "induty_code");
-
-            Optional<StockEntity> opt = stockRepository.findByStockCode(stockCode);
-            if (opt.isEmpty()) return;
-
-            StockEntity stock = opt.get();
-            stockRepository.save(stock.toBuilder()
-                    .ceoName(ceoName)
-                    .sector(sector)
-                    .updatedAt(LocalDateTime.now())
-                    .build());
-
-            log.info("[DART] company 저장 완료 — stockCode: {}, ceo: {}, sector: {}",
-                    stockCode, ceoName, sector);
-
-        } catch (Exception e) {
-            log.error("[DART] company.json 실패 — stockCode: {}, error: {}", stockCode, e.getMessage());
-        }
-    }
-
-    // ──────────────────────────────────────────────────────────
-    // 3. 다중회사 주요계정 — fnlttMultiAcnt.json (재무.txt 기반)
-    // ──────────────────────────────────────────────────────────
-
-    /**
-     * GET /api/fnlttMultiAcnt.json — 다중회사 주요계정 조회
-     * 연결재무제표(CFS) 우선, 없으면 개별재무제표(OFS) 사용
-     * 매출액 / 영업이익 / 당기순이익 / 자산총계 / 부채총계 / 자본총계 파싱
-     */
-    /**
-     * 사업보고서(11011) 1회 호출로 당기(year)·전기(year-1)·전전기(year-2) 3개 연도를 한번에 저장.
-     * API 호출 횟수: 기존 5회 → 2회 (스케줄러에서 {currentYear-1, currentYear-4} 2개 연도만 호출)
-     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void collectFinancials(String dartCorpCode, String stockCode, int year) {
         try {
             String url = MULTI_ACNT_URL
@@ -158,20 +108,53 @@ public class DartCollectorService {
             }
 
             List<Map<String, Object>> items = (List<Map<String, Object>>) listObj;
+            String bsnsYearStr = String.valueOf(year);
 
-            // CFS(연결) 우선, 없으면 OFS(개별) 사용
-            List<Map<String, Object>> cfsItems = items.stream()
-                    .filter(i -> "CFS".equals(i.get("fs_div")))
-                    .toList();
-            List<Map<String, Object>> target = cfsItems.isEmpty() ? items : cfsItems;
+            // 기존 데이터 삭제 후 재저장
+            List<FinancialStatementEntity> existing =
+                    financialStatementRepository.findByStockCodeAndBsnsYear(stockCode, bsnsYearStr);
+            if (!existing.isEmpty()) {
+                financialStatementRepository.deleteAll(existing);
+                log.info("[DART] 기존 재무제표 삭제 — stockCode: {}, year: {}, rows: {}",
+                        stockCode, year, existing.size());
+            }
 
-            // 당기(year), 전기(year-1), 전전기(year-2) 각각 별도 행으로 저장
-            saveFinancialYear(stockCode, year,     target, "thstrm_amount");
-            saveFinancialYear(stockCode, year - 1, target, "frmtrm_amount");
-            saveFinancialYear(stockCode, year - 2, target, "bfefrmtrm_amount");
+            List<FinancialStatementEntity> entities = new ArrayList<>();
+            for (Map<String, Object> row : items) {
+                String rowStockCode = parseStr(row, "stock_code");
+                // API 응답의 stock_code가 비어 있는 경우 파라미터로 전달받은 stockCode 사용
+                String effectiveStockCode = (rowStockCode != null && !rowStockCode.isBlank())
+                        ? rowStockCode.trim() : stockCode;
 
-            log.info("[DART] 재무제표 저장 완료 — stockCode: {}, years: {}/{}/{}",
-                    stockCode, year, year - 1, year - 2);
+                FinancialStatementEntity entity = FinancialStatementEntity.builder()
+                        .bsnsYear(parseStr(row, "bsns_year"))
+                        .stockCode(effectiveStockCode)
+                        .reprtCode(parseStr(row, "reprt_code"))
+                        .accountNm(parseStr(row, "account_nm"))
+                        .fsDiv(parseStr(row, "fs_div"))
+                        .fsNm(parseStr(row, "fs_nm"))
+                        .sjDiv(parseStr(row, "sj_div"))
+                        .sjNm(parseStr(row, "sj_nm"))
+                        .thstrmNm(parseStr(row, "thstrm_nm"))
+                        .thstrmDt(parseStr(row, "thstrm_dt"))
+                        .thstrmAmount(parseAmount(parseStr(row, "thstrm_amount")))
+                        .thstrmAddAmount(parseAmount(parseStr(row, "thstrm_add_amount")))
+                        .frmtrmNm(parseStr(row, "frmtrm_nm"))
+                        .frmtrmDt(parseStr(row, "frmtrm_dt"))
+                        .frmtrmAmount(parseAmount(parseStr(row, "frmtrm_amount")))
+                        .frmtrmAddAmount(parseAmount(parseStr(row, "frmtrm_add_amount")))
+                        .bfefrmtrmNm(parseStr(row, "bfefrmtrm_nm"))
+                        .bfefrmtrmDt(parseStr(row, "bfefrmtrm_dt"))
+                        .bfefrmtrmAmount(parseAmount(parseStr(row, "bfefrmtrm_amount")))
+                        .ord(parseOrd(row, "ord"))
+                        .currency(parseStr(row, "currency"))
+                        .build();
+                entities.add(entity);
+            }
+
+            financialStatementRepository.saveAll(entities);
+            log.info("[DART] 재무제표 저장 완료 — stockCode: {}, year: {}, rows: {}",
+                    stockCode, year, entities.size());
 
         } catch (Exception e) {
             log.error("[DART] fnlttMultiAcnt 실패 — stockCode: {}, year: {}, error: {}",
@@ -179,53 +162,12 @@ public class DartCollectorService {
         }
     }
 
-    private void saveFinancialYear(String stockCode, int year,
-                                   List<Map<String, Object>> items, String amountField) {
-        Long revenue          = extractByField(items, amountField, "매출액", "수익(매출액)", "영업수익");
-        Long operatingProfit  = extractByField(items, amountField, "영업이익", "영업이익(손실)");
-        Long netIncome        = extractByField(items, amountField, "당기순이익", "당기순이익(손실)");
-        Long totalAssets      = extractByField(items, amountField, "자산총계");
-        Long totalLiabilities = extractByField(items, amountField, "부채총계");
-        Long totalEquity      = extractByField(items, amountField, "자본총계");
-
-        // 모든 값이 null이면 해당 연도 데이터 없음 — 저장 스킵
-        if (revenue == null && operatingProfit == null && netIncome == null
-                && totalAssets == null && totalLiabilities == null && totalEquity == null) {
-            return;
-        }
-
-        Optional<FinancialEntity> existingOpt = financialRepository.findByStockCodeAndYear(stockCode, year);
-        FinancialEntity entity;
-        if (existingOpt.isPresent()) {
-            entity = existingOpt.get().toBuilder()
-                    .revenue(revenue)
-                    .operatingProfit(operatingProfit)
-                    .netIncome(netIncome)
-                    .totalAssets(totalAssets)
-                    .totalLiabilities(totalLiabilities)
-                    .totalEquity(totalEquity)
-                    .build();
-        } else {
-            entity = FinancialEntity.builder()
-                    .stockCode(stockCode)
-                    .year(year)
-                    .revenue(revenue)
-                    .operatingProfit(operatingProfit)
-                    .netIncome(netIncome)
-                    .totalAssets(totalAssets)
-                    .totalLiabilities(totalLiabilities)
-                    .totalEquity(totalEquity)
-                    .build();
-        }
-        financialRepository.save(entity);
-    }
-
     // ──────────────────────────────────────────────────────────
     // Private helpers
     // ──────────────────────────────────────────────────────────
 
-    private Map<String, String> parseCorpCodeZip(byte[] zipBytes) {
-        Map<String, String> result = new HashMap<>();
+    private int parseAndUpsertCorpCodes(byte[] zipBytes) {
+        int count = 0;
         try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipBytes))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
@@ -240,9 +182,38 @@ public class DartCollectorService {
                         Element el = (Element) list.item(i);
                         String corpCode  = getTagValue(el, "corp_code");
                         String stockCode = getTagValue(el, "stock_code");
-                        if (stockCode != null && !stockCode.isBlank()) {
-                            result.put(stockCode.trim(), corpCode.trim());
+                        String corpName  = getTagValue(el, "corp_name");
+                        String corpCls   = getTagValue(el, "corp_cls");
+
+                        // stock_code 없으면 스킵 (상장사만)
+                        if (stockCode == null || stockCode.isBlank()) continue;
+                        if (corpCode == null || corpCode.isBlank()) continue;
+
+                        stockCode = stockCode.trim();
+                        corpCode  = corpCode.trim();
+                        corpName  = corpName != null ? corpName.trim() : "";
+                        corpCls   = corpCls  != null ? corpCls.trim()  : "";
+
+                        Optional<CompanyEntity> existing = companyRepository.findByStockCode(stockCode);
+                        if (existing.isPresent()) {
+                            // UPDATE: corp_name, corp_cls
+                            CompanyEntity updated = existing.get().toBuilder()
+                                    .corpName(corpName)
+                                    .corpCls(corpCls)
+                                    .build();
+                            companyRepository.save(updated);
+                        } else {
+                            // INSERT: isinCd는 null 허용
+                            CompanyEntity newEntity = CompanyEntity.builder()
+                                    .corpCode(corpCode)
+                                    .stockCode(stockCode)
+                                    .corpName(corpName)
+                                    .corpCls(corpCls)
+                                    .isinCd(null)
+                                    .build();
+                            companyRepository.save(newEntity);
                         }
+                        count++;
                     }
                     break;
                 }
@@ -250,7 +221,7 @@ public class DartCollectorService {
         } catch (Exception e) {
             log.error("[DART] corp_code.zip 파싱 오류: {}", e.getMessage());
         }
-        return result;
+        return count;
     }
 
     private String getTagValue(Element el, String tagName) {
@@ -258,27 +229,38 @@ public class DartCollectorService {
         return nodes.getLength() > 0 ? nodes.item(0).getTextContent() : null;
     }
 
-    /** account_nm 기준으로 지정 금액 필드(thstrm/frmtrm/bfefrmtrm_amount) 추출 */
-    private Long extractByField(List<Map<String, Object>> items, String fieldName, String... candidates) {
-        for (String candidate : candidates) {
-            for (Map<String, Object> item : items) {
-                if (candidate.equals(item.get("account_nm"))) {
-                    Object val = item.get(fieldName);
-                    if (val != null) {
-                        try {
-                            return Long.parseLong(val.toString().replace(",", "").trim());
-                        } catch (NumberFormatException e) {
-                            return null;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
+    /**
+     * Map에서 String 값 추출 (null 안전)
+     */
     private String parseStr(Map<?, ?> map, String key) {
         Object val = map.get(key);
-        return val != null ? val.toString().trim() : null;
+        if (val == null) return null;
+        String s = val.toString().trim();
+        return s.isEmpty() ? null : s;
+    }
+
+    /**
+     * 금액 문자열 → Long 변환 (쉼표 제거, 빈문자열→null)
+     */
+    private Long parseAmount(String s) {
+        if (s == null || s.isBlank()) return null;
+        try {
+            return Long.parseLong(s.replace(",", "").trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
+     * ord 필드 → Integer 변환 (null 안전)
+     */
+    private Integer parseOrd(Map<String, Object> row, String key) {
+        Object val = row.get(key);
+        if (val == null) return null;
+        try {
+            return Integer.parseInt(val.toString().trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }

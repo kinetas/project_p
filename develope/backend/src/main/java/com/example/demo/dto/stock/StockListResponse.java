@@ -1,6 +1,8 @@
 package com.example.demo.dto.stock;
 
-import com.example.demo.entity.StockEntity;
+import com.example.demo.entity.CompanyEntity;
+import com.example.demo.entity.StockIndicatorEntity;
+import com.example.demo.entity.StockPriceEntity;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,32 +11,32 @@ import lombok.Getter;
 public class StockListResponse {
 
     private String stockCode;
-    private String stockName;
-    private String market;
-    private Long currentPrice;
-    private Long marketCap;
-    private Double per;
-    private Double pbr;
-    private Double roe;
-    private Double debtRatio;
-    private Double changeRate;
-    private Long changeAmount;
-    private Double dividendYield;
+    private String corpName;
+    private String mrktCtg;
+    private Long clpr;
+    private Long vs;
+    private java.math.BigDecimal fltRt;
+    private Long mrktTotAmt;
+    private java.math.BigDecimal per;
+    private java.math.BigDecimal pbr;
+    private java.math.BigDecimal roe;
+    private java.math.BigDecimal debtRatio;
+    private java.math.BigDecimal dividendYield;
 
-    public static StockListResponse from(StockEntity entity) {
+    public static StockListResponse from(CompanyEntity company, StockPriceEntity stockPrice, StockIndicatorEntity indicator) {
         return StockListResponse.builder()
-                .stockCode(entity.getStockCode())
-                .stockName(entity.getStockName())
-                .market(entity.getMarket())
-                .currentPrice(entity.getCurrentPrice())
-                .marketCap(entity.getMarketCap())
-                .per(entity.getPer())
-                .pbr(entity.getPbr())
-                .roe(entity.getRoe())
-                .debtRatio(entity.getDebtRatio())
-                .changeRate(entity.getChangeRate() != null ? entity.getChangeRate() : 0.0)
-                .changeAmount(entity.getChangeAmount() != null ? entity.getChangeAmount() : 0L)
-                .dividendYield(0.0)
+                .stockCode(company.getStockCode())
+                .corpName(company.getCorpName())
+                .mrktCtg(stockPrice != null ? stockPrice.getMrktCtg() : null)
+                .clpr(stockPrice != null ? stockPrice.getClpr() : null)
+                .vs(stockPrice != null ? stockPrice.getVs() : null)
+                .fltRt(stockPrice != null ? stockPrice.getFltRt() : null)
+                .mrktTotAmt(stockPrice != null ? stockPrice.getMrktTotAmt() : null)
+                .per(indicator != null ? indicator.getPer() : null)
+                .pbr(indicator != null ? indicator.getPbr() : null)
+                .roe(indicator != null ? indicator.getRoe() : null)
+                .debtRatio(indicator != null ? indicator.getDebtRatio() : null)
+                .dividendYield(indicator != null ? indicator.getDividendYield() : null)
                 .build();
     }
 }

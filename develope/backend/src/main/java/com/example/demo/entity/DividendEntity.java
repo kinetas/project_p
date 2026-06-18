@@ -13,66 +13,74 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class DividendEntity {
 
-    @EmbeddedId
-    private DividendId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "isinCd", length = 12, nullable = false)
+    private String isinCd;
+
+    @Column(name = "basDt", length = 8, nullable = false)
+    private String basDt;
 
     @Column(name = "crno")
     private String crno;
 
-    @Column(name = "stck_issu_cmpy_nm")
+    @Column(name = "stckIssuCmpyNm")
     private String stckIssuCmpyNm;
 
-    @Column(name = "dvdn_bas_dt")
+    @Column(name = "dvdnBasDt")
     private String dvdnBasDt;
 
-    @Column(name = "cash_dvdn_pay_dt")
+    @Column(name = "cashDvdnPayDt")
     private String cashDvdnPayDt;
 
-    @Column(name = "stck_hndv_dt")
+    @Column(name = "stckHndvDt")
     private String stckHndvDt;
 
-    @Column(name = "isin_cd_nm")
+    @Column(name = "isinCdNm")
     private String isinCdNm;
 
-    @Column(name = "stck_dvdn_rcd")
+    @Column(name = "stckDvdnRcd")
     private String stckDvdnRcd;
 
-    @Column(name = "stck_dvdn_rcd_nm")
+    @Column(name = "stckDvdnRcdNm")
     private String stckDvdnRcdNm;
 
-    @Column(name = "trsnm_dpty_dcd")
+    @Column(name = "trsnmDptyDcd")
     private String trsnmDptyDcd;
 
-    @Column(name = "trsnm_dpty_dcd_nm")
+    @Column(name = "trsnmDptyDcdNm")
     private String trsnmDptyDcdNm;
 
-    @Column(name = "scrs_itms_kcd")
+    @Column(name = "scrsItmsKcd")
     private String scrsItmsKcd;
 
-    @Column(name = "scrs_itms_kcd_nm")
+    @Column(name = "scrsItmsKcdNm")
     private String scrsItmsKcdNm;
 
-    @Column(name = "stck_genr_dvdn_amt", precision = 19, scale = 4)
+    @Column(name = "stckGenrDvdnAmt", precision = 22, scale = 3)
     private BigDecimal stckGenrDvdnAmt;
 
-    @Column(name = "stck_grdn_dvdn_amt", precision = 19, scale = 4)
+    @Column(name = "stckGrdnDvdnAmt", precision = 22, scale = 3)
     private BigDecimal stckGrdnDvdnAmt;
 
-    @Column(name = "stck_genr_cash_dvdn_rt", precision = 19, scale = 4)
+    @Column(name = "stckGenrCashDvdnRt", precision = 26, scale = 10)
     private BigDecimal stckGenrCashDvdnRt;
 
-    @Column(name = "stck_genr_dvdn_rt", precision = 19, scale = 4)
+    @Column(name = "stckGenrDvdnRt", precision = 26, scale = 10)
     private BigDecimal stckGenrDvdnRt;
 
-    @Column(name = "cash_grdn_dvdn_rt", precision = 19, scale = 4)
+    @Column(name = "cashGrdnDvdnRt", precision = 26, scale = 10)
     private BigDecimal cashGrdnDvdnRt;
 
-    @Column(name = "stck_grdn_dvdn_rt", precision = 19, scale = 4)
+    @Column(name = "stckGrdnDvdnRt", precision = 26, scale = 10)
     private BigDecimal stckGrdnDvdnRt;
 
-    @Column(name = "stck_par_prc", precision = 19, scale = 4)
+    @Column(name = "stckParPrc", precision = 22, scale = 3)
     private BigDecimal stckParPrc;
 
-    @Column(name = "stck_stac_md")
+    @Column(name = "stckStacMd")
     private String stckStacMd;
 }

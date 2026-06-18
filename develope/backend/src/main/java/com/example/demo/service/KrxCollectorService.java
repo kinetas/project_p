@@ -1,18 +1,21 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.StockEntity;
-import com.example.demo.repository.StockRepository;
+import com.example.demo.entity.CompanyEntity;
+import com.example.demo.entity.StockPriceEntity;
+import com.example.demo.repository.CompanyRepository;
+import com.example.demo.repository.StockPriceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +31,8 @@ public class KrxCollectorService {
     private static final int PAGE_SIZE = 1000;
 
     private final RestTemplate restTemplate;
-    private final StockRepository stockRepository;
+    private final CompanyRepository companyRepository;
+    private final StockPriceRepository stockPriceRepository;
 
     @Value("${fsc.api.key}")
     private String fscApiKey;
@@ -40,7 +44,7 @@ public class KrxCollectorService {
         String basDt = getLastTradingDay();
         log.info("[FSC] 기준일자: {}", basDt);
         collectByMarket("KOSPI", basDt);
-        // collectByMarket("KOSDAQ", basDt);
+        collectByMarket("KOSDAQ", basDt);
     }
 
     private void collectByMarket(String market, String basDt) {
@@ -80,7 +84,7 @@ public class KrxCollectorService {
 
                 log.info("[FSC] {} page={} size={}", market, pageNo, itemList.size());
                 for (Map<String, Object> item : itemList) {
-                    saveStock(item, market);
+                    saveStock(item, market, basDt);
                 }
 
                 pageNo++;
@@ -105,69 +109,82 @@ public class KrxCollectorService {
         }
     }
 
-    private void saveStock(Map<String, Object> item, String market) {
+    @Transactional
+    private void saveStock(Map<String, Object> item, String market, String basDt) {
         try {
-            String stockCode = parseString(item, "srtnCd");
-            String stockName = parseString(item, "itmsNm");
+            String srtnCd  = parseString(item, "srtnCd");
+            String itmsNm  = parseString(item, "itmsNm");
 
-            if (stockCode == null || stockName == null) return;
+            if (srtnCd == null || itmsNm == null) return;
 
-            String isinCd         = parseString(item, "isinCd");
-            Long currentPrice     = parseLong(item, "clpr");
-            Long changeAmount     = parseLong(item, "vs");
-            Double changeRate     = parseDouble(item, "fltRt");
-            Long marketCap        = parseLong(item, "mrktTotAmt");
-            Long sharesOutstanding = parseLong(item, "lstgStCnt");
+            String isinCd    = parseString(item, "isinCd");
+            String mrktCtg   = parseString(item, "mrktCtg");
+            if (mrktCtg == null) mrktCtg = market;
 
-            Optional<StockEntity> existingOpt = stockRepository.findByStockCode(stockCode);
+            Long   clpr      = parseLong(item, "clpr");
+            Long   vs        = parseLong(item, "vs");
+            BigDecimal fltRt = parseBigDecimal(item, "fltRt");
+            Long   mkp       = parseLong(item, "mkp");
+            Long   hipr      = parseLong(item, "hipr");
+            Long   lopr      = parseLong(item, "lopr");
+            Long   trqu      = parseLong(item, "trqu");
+            Long   trPrc     = parseLong(item, "trPrc");
+            Long   lstgStCnt = parseLong(item, "lstgStCnt");
+            Long   mrktTotAmt = parseLong(item, "mrktTotAmt");
 
-            StockEntity entity;
-            if (existingOpt.isPresent()) {
-                StockEntity e = existingOpt.get();
-                entity = StockEntity.builder()
-                        .id(e.getId())
-                        .stockCode(e.getStockCode())
-                        .stockName(stockName)
-                        .market(market)
-                        .sector(e.getSector())
-                        .listingDate(e.getListingDate())
-                        .ceoName(e.getCeoName())
+            // company 처리: stockCode로 조회 후 존재하면 UPDATE, 없으면 스킵
+            Optional<CompanyEntity> companyOpt = companyRepository.findByStockCode(srtnCd);
+            if (companyOpt.isPresent()) {
+                CompanyEntity existing = companyOpt.get();
+                String corpCls = convertCorpCls(mrktCtg);
+                CompanyEntity updated = existing.toBuilder()
                         .isinCd(isinCd)
-                        .currentPrice(currentPrice)
-                        .changeAmount(changeAmount)
-                        .changeRate(changeRate)
-                        .marketCap(marketCap)
-                        .sharesOutstanding(sharesOutstanding)
-                        .per(e.getPer())
-                        .pbr(e.getPbr())
-                        .roe(e.getRoe())
-                        .eps(e.getEps())
-                        .bps(e.getBps())
-                        .debtRatio(e.getDebtRatio())
-                        .operatingMargin(e.getOperatingMargin())
-                        .dartCorpCode(e.getDartCorpCode())
-                        .updatedAt(LocalDateTime.now())
+                        .corpName(itmsNm)
+                        .corpCls(corpCls)
                         .build();
+                companyRepository.save(updated);
             } else {
-                entity = StockEntity.builder()
-                        .stockCode(stockCode)
-                        .stockName(stockName)
-                        .market(market)
-                        .isinCd(isinCd)
-                        .currentPrice(currentPrice)
-                        .changeAmount(changeAmount)
-                        .changeRate(changeRate)
-                        .marketCap(marketCap)
-                        .sharesOutstanding(sharesOutstanding)
-                        .updatedAt(LocalDateTime.now())
-                        .build();
+                log.debug("[FSC] company 미존재 — srtnCd={} 스킵 (DART 선행 필요)", srtnCd);
             }
 
-            stockRepository.save(entity);
+            // stock_price 저장
+            StockPriceEntity stockPriceEntity = StockPriceEntity.builder()
+                    .basDt(basDt)
+                    .srtnCd(srtnCd)
+                    .isinCd(isinCd)
+                    .itmsNm(itmsNm)
+                    .mrktCtg(mrktCtg)
+                    .clpr(clpr)
+                    .vs(vs)
+                    .fltRt(fltRt)
+                    .mkp(mkp)
+                    .hipr(hipr)
+                    .lopr(lopr)
+                    .trqu(trqu)
+                    .trPrc(trPrc)
+                    .lstgStCnt(lstgStCnt)
+                    .mrktTotAmt(mrktTotAmt)
+                    .build();
+
+            stockPriceRepository.save(stockPriceEntity);
 
         } catch (Exception e) {
             log.error("[FSC] 개별 종목 처리 오류: {}", e.getMessage());
         }
+    }
+
+    /**
+     * mrktCtg → corp_cls 변환
+     * "KOSPI" → "Y", "KOSDAQ" → "K", "KONEX" → "N", 그 외 → "E"
+     */
+    private String convertCorpCls(String mrktCtg) {
+        if (mrktCtg == null) return "E";
+        return switch (mrktCtg.toUpperCase()) {
+            case "KOSPI"  -> "Y";
+            case "KOSDAQ" -> "K";
+            case "KONEX"  -> "N";
+            default       -> "E";
+        };
     }
 
     /** 가장 최근 평일 (주말 제외, 공휴일 미처리) */
@@ -182,24 +199,30 @@ public class KrxCollectorService {
 
     private String parseString(Map<String, Object> item, String key) {
         Object val = item.get(key);
-        return val != null ? val.toString().trim() : null;
+        if (val == null) return null;
+        String str = val.toString().trim();
+        return str.isEmpty() ? null : str;
     }
 
     private Long parseLong(Map<String, Object> item, String key) {
         try {
             Object val = item.get(key);
             if (val == null) return null;
-            return Long.parseLong(val.toString().replace(",", "").trim());
+            String str = val.toString().replace(",", "").trim();
+            if (str.isEmpty()) return null;
+            return Long.parseLong(str);
         } catch (NumberFormatException e) {
             return null;
         }
     }
 
-    private Double parseDouble(Map<String, Object> item, String key) {
+    private BigDecimal parseBigDecimal(Map<String, Object> item, String key) {
         try {
             Object val = item.get(key);
             if (val == null) return null;
-            return Double.parseDouble(val.toString().replace(",", "").trim());
+            String str = val.toString().replace(",", "").trim();
+            if (str.isEmpty()) return null;
+            return new BigDecimal(str);
         } catch (NumberFormatException e) {
             return null;
         }

@@ -68,7 +68,6 @@ CREATE TABLE IF NOT EXISTS financial_statement (
     ord                 INT              NULL COMMENT '계정과목 정렬순서',
     currency            VARCHAR(10)      NULL COMMENT '통화단위',
     PRIMARY KEY (id),
-    UNIQUE KEY uq_fs (bsns_year, stock_code, reprt_code, fs_div, sj_div, account_nm),
     KEY idx_fs_stock (stock_code),
     CONSTRAINT fk_fs_company FOREIGN KEY (stock_code) REFERENCES company (stock_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='DART 재무제표 원본 데이터';
@@ -80,6 +79,7 @@ CREATE TABLE IF NOT EXISTS financial_statement (
 -- dividend_yield 계산 시 stckGenrDvdnAmt ÷ 현재 주가 × 100 으로 사용
 -- -------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS dividend_info (
+    id                BIGINT         NOT NULL AUTO_INCREMENT,
     isinCd            VARCHAR(12)    NOT NULL COMMENT 'ISIN 코드 (12자리) — company.isinCd 참조',
     basDt             CHAR(8)        NOT NULL COMMENT '기준일자 (YYYYMMDD) — 데이터 갱신 기준일',
     crno              VARCHAR(13)        NULL COMMENT '법인등록번호 (13자리)',
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS dividend_info (
     stckGrdnDvdnRt    DECIMAL(26, 10)    NULL COMMENT '주식차등배당률',
     stckParPrc        DECIMAL(22, 3)     NULL COMMENT '주식액면가',
     stckStacMd        VARCHAR(4)         NULL COMMENT '주식결산월일 (ex. 12)',
-    PRIMARY KEY (isinCd, basDt),
+    PRIMARY KEY (id),
     KEY idx_div_isincd (isinCd),
     CONSTRAINT fk_div_company FOREIGN KEY (isinCd) REFERENCES company (isinCd)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='금융위원회 주식배당정보 — API 응답 전량 저장';
@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS dividend_info (
 -- 적재 순서 3단계
 -- -------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS stock_price (
+    id         BIGINT         NOT NULL AUTO_INCREMENT,
     basDt      CHAR(8)        NOT NULL COMMENT '기준일자 (YYYYMMDD)',
     srtnCd     CHAR(6)        NOT NULL COMMENT '단축종목코드',
     isinCd     VARCHAR(12)        NULL COMMENT 'ISIN 코드',
@@ -127,7 +128,8 @@ CREATE TABLE IF NOT EXISTS stock_price (
     trPrc      BIGINT             NULL COMMENT '거래대금',
     lstgStCnt  BIGINT             NULL COMMENT '상장주식수',
     mrktTotAmt BIGINT             NULL COMMENT '시가총액',
-    PRIMARY KEY (basDt, srtnCd),
+    PRIMARY KEY (id),
+    KEY idx_sp_bas_srtn (basDt, srtnCd),
     KEY idx_sp_srtncd (srtnCd),
     CONSTRAINT fk_sp_company FOREIGN KEY (srtnCd) REFERENCES company (stock_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='금융위원회 주식 일별 시세';

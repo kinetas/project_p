@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.DividendEntity;
-import com.example.demo.entity.DividendId;
 import com.example.demo.repository.DividendRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -100,10 +99,9 @@ public class DividendCollectorService {
 
             if (isinCd == null || basDt == null) return;
 
-            DividendId dividendId = new DividendId(isinCd, basDt);
-
             DividendEntity entity = DividendEntity.builder()
-                    .id(dividendId)
+                    .isinCd(isinCd)
+                    .basDt(basDt)
                     .crno(parseString(item, "crno"))
                     .stckIssuCmpyNm(parseString(item, "stckIssuCmpyNm"))
                     .dvdnBasDt(parseString(item, "dvdnBasDt"))
