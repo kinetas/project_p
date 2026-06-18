@@ -12,18 +12,11 @@ public class StockDetailResponse {
 
     private String stockCode;
     private String corpName;
-    private String corpCls;
-    private String isinCd;
 
     private String mrktCtg;
     private Long clpr;
     private Long vs;
     private java.math.BigDecimal fltRt;
-    private Long mkp;
-    private Long hipr;
-    private Long lopr;
-    private Long trqu;
-    private Long trPrc;
     private Long lstgStCnt;
     private Long mrktTotAmt;
 
@@ -40,17 +33,10 @@ public class StockDetailResponse {
         return StockDetailResponse.builder()
                 .stockCode(company.getStockCode())
                 .corpName(company.getCorpName())
-                .corpCls(company.getCorpCls())
-                .isinCd(company.getIsinCd())
                 .mrktCtg(stockPrice != null ? stockPrice.getMrktCtg() : null)
                 .clpr(stockPrice != null ? stockPrice.getClpr() : null)
                 .vs(stockPrice != null ? stockPrice.getVs() : null)
                 .fltRt(stockPrice != null ? stockPrice.getFltRt() : null)
-                .mkp(stockPrice != null ? stockPrice.getMkp() : null)
-                .hipr(stockPrice != null ? stockPrice.getHipr() : null)
-                .lopr(stockPrice != null ? stockPrice.getLopr() : null)
-                .trqu(stockPrice != null ? stockPrice.getTrqu() : null)
-                .trPrc(stockPrice != null ? stockPrice.getTrPrc() : null)
                 .lstgStCnt(stockPrice != null ? stockPrice.getLstgStCnt() : null)
                 .mrktTotAmt(stockPrice != null ? stockPrice.getMrktTotAmt() : null)
                 .eps(indicator != null ? indicator.getEps() : null)

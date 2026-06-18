@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -30,29 +30,39 @@ public class StockService {
     private final StockIndicatorRepository stockIndicatorRepository;
     private final FinancialStatementRepository financialStatementRepository;
 
-    private static final List<String> REVENUE_NAMES =
-            Arrays.asList("매출액", "수익(매출액)", "영업수익");
-    private static final List<String> OPERATING_PROFIT_NAMES =
-            Arrays.asList("영업이익", "영업이익(손실)");
-    private static final List<String> NET_INCOME_NAMES =
-            Arrays.asList("당기순이익", "당기순이익(손실)");
 
     /**
      * 검색/필터 조건으로 종목 목록 조회
      */
-    public List<StockListResponse> getStockList(StockSearchRequest request) {
+    public PageResponse<StockListResponse> getStockList(StockSearchRequest request) {
         List<CompanyEntity> companies = companyRepository.findAll();
 
-        return companies.stream()
-                .map(company -> {
-                    Optional<StockPriceEntity> stockPrice =
-                            stockPriceRepository.findTopBySrtnCdOrderByBasDtDesc(company.getStockCode());
-                    Optional<StockIndicatorEntity> indicator =
-                            stockIndicatorRepository.findTopByIdStockCodeOrderByIdCalcYearDesc(company.getStockCode());
-                    return StockListResponse.from(company, stockPrice.orElse(null), indicator.orElse(null));
-                })
-                .filter(r -> matchesFilter(r, request))
-                .collect(Collectors.toList());
+        List<StockListResponse> allFiltered = companies.stream()
+            .map(company -> {
+                Optional<StockPriceEntity> sp = stockPriceRepository.findTopBySrtnCdOrderByBasDtDesc(company.getStockCode());
+                Optional<StockIndicatorEntity> ind = stockIndicatorRepository.findTopByIdStockCodeOrderByIdCalcYearDesc(company.getStockCode());
+                return StockListResponse.from(company, sp.orElse(null), ind.orElse(null));
+            })
+            .filter(r -> matchesFilter(r, request))
+            .collect(Collectors.toList());
+
+        int total = allFiltered.size();
+        int page = request.getPage();
+        int size = request.getSize() > 0 ? request.getSize() : 20;
+        int totalPages = (int) Math.ceil((double) total / size);
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, total);
+        List<StockListResponse> paged = fromIndex >= total
+            ? Collections.emptyList()
+            : allFiltered.subList(fromIndex, toIndex);
+
+        return PageResponse.<StockListResponse>builder()
+            .data(paged)
+            .totalCount(total)
+            .page(page)
+            .size(size)
+            .totalPages(totalPages)
+            .build();
     }
 
     /**
@@ -124,45 +134,42 @@ public class StockService {
     }
 
     /**
-     * 최근 5년 재무제표 조회
+     * 시가총액 TOP10 종목 조회
      */
-    public List<FinancialResponse> getFinancials(String stockCode) {
-        List<String> years = financialStatementRepository
-                .findDistinctBsnsYearsByStockCodeOrderByDesc(stockCode);
-
-        List<String> recentYears = years.stream()
-                .limit(5)
-                .collect(Collectors.toList());
-
-        return recentYears.stream()
-                .map(year -> {
-                    List<FinancialStatementEntity> rows =
-                            financialStatementRepository.findByStockCodeAndBsnsYear(stockCode, year);
-
-                    Long revenue = extractAmount(rows, REVENUE_NAMES);
-                    Long operatingProfit = extractAmount(rows, OPERATING_PROFIT_NAMES);
-                    Long netIncome = extractAmount(rows, NET_INCOME_NAMES);
-
-                    return FinancialResponse.builder()
-                            .year(year)
-                            .revenue(revenue)
-                            .operatingProfit(operatingProfit)
-                            .netIncome(netIncome)
-                            .build();
+    public List<StockListResponse> getFeaturedStocks() {
+        return companyRepository.findAll().stream()
+                .map(company -> {
+                    Optional<StockPriceEntity> sp = stockPriceRepository.findTopBySrtnCdOrderByBasDtDesc(company.getStockCode());
+                    Optional<StockIndicatorEntity> ind = stockIndicatorRepository.findTopByIdStockCodeOrderByIdCalcYearDesc(company.getStockCode());
+                    return StockListResponse.from(company, sp.orElse(null), ind.orElse(null));
                 })
+                .filter(r -> r.getMrktTotAmt() != null && r.getMrktTotAmt() > 0)
+                .sorted(Comparator.comparingLong(StockListResponse::getMrktTotAmt).reversed())
+                .limit(10)
                 .collect(Collectors.toList());
     }
 
     /**
-     * account_nm 기준으로 해당 계정의 thstrmAmount 추출
+     * 최근 5년 재무제표 조회
      */
-    private Long extractAmount(List<FinancialStatementEntity> rows, List<String> accountNames) {
-        return rows.stream()
-                .filter(r -> accountNames.contains(r.getAccountNm()))
-                .map(FinancialStatementEntity::getThstrmAmount)
-                .filter(amount -> amount != null)
-                .findFirst()
-                .orElse(null);
+    public List<FinancialResponse> getFinancials(String stockCode) {
+        return financialStatementRepository
+                .findDistinctBsnsYearsByStockCodeOrderByDesc(stockCode)
+                .stream()
+                .limit(5)
+                .map(year -> financialStatementRepository.findByStockCodeAndBsnsYear(stockCode, year)
+                        .map(fs -> FinancialResponse.builder()
+                                .year(year)
+                                .revenue(fs.getRevenue())
+                                .operatingProfit(fs.getOperatingIncome())
+                                .netIncome(fs.getNetIncome())
+                                .totalAssets(fs.getTotalAssets())
+                                .totalLiabilities(fs.getTotalLiabilities())
+                                .totalEquity(fs.getTotalEquity())
+                                .build())
+                        .orElse(null))
+                .filter(r -> r != null)
+                .collect(Collectors.toList());
     }
 
     /**

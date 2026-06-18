@@ -241,3 +241,26 @@
 @media (min-width: 769px) {
   .card-list { display: none !important; }
 }
+
+/* 페이징 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px 0;
+}
+
+.page-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.page-btn.active {
+  background: var(--primary, #3182f6);
+  color: #fff;
+  border-color: var(--primary, #3182f6);
+}

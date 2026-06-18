@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   let sortKey = null;
   let sortDir = 'desc';
   let filters = {};
+  let currentPage = 0;
+  const PAGE_SIZE = 20;
+  let _totalPages = 1;
+  let _totalCount = 0;
 
   const params = new URLSearchParams(window.location.search);
   const searchQuery = params.get('q')?.toLowerCase() || '';
@@ -23,13 +27,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function loadStocks({ market } = {}) {
     tableBody.innerHTML = `<tr><td colspan="8"><div class="empty-state">종목 데이터를 불러오는 중...</div></td></tr>`;
     try {
-      const apiParams = { size: 1000 };
+      const apiParams = { page: currentPage, size: PAGE_SIZE };
       if (searchQuery) apiParams.keyword = searchQuery;
       if (market) apiParams.market = market;
-      stocks = await fetchStocks(apiParams);
+      const { stocks: fetched, totalCount, totalPages } = await fetchStocks(apiParams);
+      stocks = fetched;
+      _totalCount = totalCount;
+      _totalPages = totalPages;
     } catch (e) {
       console.error('API 호출 실패:', e);
       stocks = [];
+      _totalCount = 0;
+      _totalPages = 1;
     }
   }
 
@@ -104,10 +113,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     bindStockCards(cardList);
   }
 
+  function renderPagination(totalPages, currentPage) {
+    const el = document.getElementById('pagination');
+    if (!el) return;
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
+
+    let html = '';
+    if (currentPage > 0) html += `<button class="page-btn" data-page="${currentPage-1}">이전</button>`;
+    for (let i = 0; i < totalPages; i++) {
+      html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i+1}</button>`;
+    }
+    if (currentPage < totalPages - 1) html += `<button class="page-btn" data-page="${currentPage+1}">다음</button>`;
+
+    el.innerHTML = html;
+    el.querySelectorAll('.page-btn[data-page]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        currentPage = parseInt(btn.dataset.page);
+        await loadStocks();
+        render();
+      });
+    });
+  }
+
   function render() {
     const filtered = applyFilters();
     renderTable(filtered);
     updateFilterBtn();
+    renderPagination(_totalPages, currentPage);
   }
 
   // 필터 토글

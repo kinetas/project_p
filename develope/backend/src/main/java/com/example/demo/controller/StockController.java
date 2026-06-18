@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.stock.PageResponse;
 import com.example.demo.dto.stock.StockDetailResponse;
 import com.example.demo.dto.stock.StockListResponse;
 import com.example.demo.dto.stock.StockSearchRequest;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/stocks")
@@ -22,9 +24,9 @@ public class StockController {
      * GET /api/stocks — 종목 목록 조회 (검색/필터/페이징)
      */
     @GetMapping
-    public ResponseEntity<List<StockListResponse>> getStockList(
+    public ResponseEntity<PageResponse<StockListResponse>> getStockList(
             @ModelAttribute StockSearchRequest request) {
-        List<StockListResponse> result = stockService.getStockList(request);
+        PageResponse<StockListResponse> result = stockService.getStockList(request);
         return ResponseEntity.ok(result);
     }
 
@@ -45,5 +47,13 @@ public class StockController {
             @RequestParam(defaultValue = "value") String type) {
         Top10Response result = stockService.getTop10(type);
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * GET /api/stocks/featured — 시가총액 TOP10 종목 조회
+     */
+    @GetMapping("/featured")
+    public ResponseEntity<List<StockListResponse>> getFeaturedStocks() {
+        return ResponseEntity.ok(stockService.getFeaturedStocks());
     }
 }

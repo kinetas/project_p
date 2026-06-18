@@ -25,56 +25,53 @@ public class FinancialStatementEntity {
     @Column(name = "reprt_code", length = 5, nullable = false)
     private String reprtCode;
 
-    @Column(name = "account_nm", length = 100, nullable = false)
-    private String accountNm;
-
     @Column(name = "fs_div", length = 5, nullable = false)
     private String fsDiv;
 
-    @Column(name = "fs_nm", length = 50)
-    private String fsNm;
+    @Column(name = "period_nm", length = 50)
+    private String periodNm;
 
-    @Column(name = "sj_div", length = 5, nullable = false)
-    private String sjDiv;
+    @Column(name = "period_dt", length = 50)
+    private String periodDt;
 
-    @Column(name = "sj_nm", length = 50)
-    private String sjNm;
+    @Column(name = "current_assets")
+    private Long currentAssets;
 
-    @Column(name = "thstrm_nm", length = 50)
-    private String thstrmNm;
+    @Column(name = "non_current_assets")
+    private Long nonCurrentAssets;
 
-    @Column(name = "thstrm_dt", length = 30)
-    private String thstrmDt;
+    @Column(name = "total_assets")
+    private Long totalAssets;
 
-    @Column(name = "thstrm_amount")
-    private Long thstrmAmount;
+    @Column(name = "current_liabilities")
+    private Long currentLiabilities;
 
-    @Column(name = "thstrm_add_amount")
-    private Long thstrmAddAmount;
+    @Column(name = "non_current_liabilities")
+    private Long nonCurrentLiabilities;
 
-    @Column(name = "frmtrm_nm", length = 50)
-    private String frmtrmNm;
+    @Column(name = "total_liabilities")
+    private Long totalLiabilities;
 
-    @Column(name = "frmtrm_dt", length = 30)
-    private String frmtrmDt;
+    @Column(name = "capital_stock")
+    private Long capitalStock;
 
-    @Column(name = "frmtrm_amount")
-    private Long frmtrmAmount;
+    @Column(name = "retained_earnings")
+    private Long retainedEarnings;
 
-    @Column(name = "frmtrm_add_amount")
-    private Long frmtrmAddAmount;
+    @Column(name = "total_equity")
+    private Long totalEquity;
 
-    @Column(name = "bfefrmtrm_nm", length = 50)
-    private String bfefrmtrmNm;
+    @Column(name = "revenue")
+    private Long revenue;
 
-    @Column(name = "bfefrmtrm_dt", length = 30)
-    private String bfefrmtrmDt;
+    @Column(name = "operating_income")
+    private Long operatingIncome;
 
-    @Column(name = "bfefrmtrm_amount")
-    private Long bfefrmtrmAmount;
+    @Column(name = "income_before_tax")
+    private Long incomeBeforeTax;
 
-    @Column(name = "ord")
-    private Integer ord;
+    @Column(name = "net_income")
+    private Long netIncome;
 
     @Column(name = "currency", length = 10)
     private String currency;

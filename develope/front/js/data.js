@@ -51,12 +51,12 @@ const API_BASE = "http://localhost:8080";
 function normalizeStock(s) {
   return {
     code: s.stockCode,
-    name: s.stockName,
-    market: s.market || "",
-    price: s.currentPrice || 0,
-    changeRate: s.changeRate || 0,
-    changeAmount: s.changeAmount || 0,
-    marketCap: s.marketCap || 0,
+    name: s.corpName,
+    market: s.mrktCtg || "",
+    price: s.clpr || 0,
+    changeRate: Number(s.fltRt) || 0,
+    changeAmount: s.vs || 0,
+    marketCap: s.mrktTotAmt || 0,
     per: s.per,
     pbr: s.pbr,
     roe: s.roe,
@@ -74,37 +74,39 @@ function normalizeDetail(s, financials) {
   const sorted = [...(financials || [])].sort((a, b) => a.year - b.year);
   return {
     code: s.stockCode,
-    name: s.stockName,
-    market: s.market || "",
-    price: s.currentPrice || 0,
-    changeRate: s.changeRate || 0,
-    changeAmount: s.changeAmount || 0,
-    marketCap: s.marketCap || 0,
+    name: s.corpName,
+    market: s.mrktCtg || "",
+    price: s.clpr || 0,
+    changeRate: Number(s.fltRt) || 0,
+    changeAmount: s.vs || 0,
+    marketCap: s.mrktTotAmt || 0,
     per: s.per,
     pbr: s.pbr,
     roe: s.roe,
     dividendYield: s.dividendYield || 0,
-    shares: s.sharesOutstanding ? s.sharesOutstanding.toLocaleString("ko-KR") + "천주" : "-",
+    shares: s.lstgStCnt
+      ? Math.round(s.lstgStCnt / 1000).toLocaleString("ko-KR") + "천주"
+      : "-",
     eps: s.eps || 0,
     bps: s.bps || 0,
     debtRatio: s.debtRatio,
     operatingMargin: s.operatingMargin,
-    sector: s.sector || "-",
-    listedDate: s.listingDate || "-",
-    ceo: s.ceoName || "-",
+    sector: "-",
+    listedDate: "-",
+    ceo: "-",
     operatingProfit: sorted.length > 0 ? sorted[sorted.length - 1].operatingProfit || 0 : 0,
-    revenueHistory: sorted.map(f => f.revenue || 0),
+    revenueHistory:   sorted.map(f => f.revenue || 0),
     operatingHistory: sorted.map(f => f.operatingProfit || 0),
     netIncomeHistory: sorted.map(f => f.netIncome || 0),
-    assetHistory: sorted.map(f => f.totalAssets || 0),
-    debtHistory: sorted.map(f => f.totalLiabilities || 0),
-    equityHistory: sorted.map(f => f.totalEquity || 0),
-    roeHistory: sorted.map(f => f.roe || 0),
+    assetHistory:     sorted.map(f => f.totalAssets || 0),
+    debtHistory:      sorted.map(f => f.totalLiabilities || 0),
+    equityHistory:    sorted.map(f => f.totalEquity || 0),
+    roeHistory:       sorted.map(f => f.roe || 0),
     debtRatioHistory: sorted.map(f => f.debtRatio || 0),
-    perHistory: sorted.map(f => f.per || 0),
-    pbrHistory: sorted.map(f => f.pbr || 0),
-    epsHistory: sorted.map(f => f.eps || 0),
-    bpsHistory: sorted.map(f => f.bps || 0),
+    perHistory:       sorted.map(f => f.per || 0),
+    pbrHistory:       sorted.map(f => f.pbr || 0),
+    epsHistory:       sorted.map(f => f.eps || 0),
+    bpsHistory:       sorted.map(f => f.bps || 0),
     years: sorted.map(f => f.year),
   };
 }
@@ -119,6 +121,22 @@ async function fetchStocks(params = {}) {
   const url = `${API_BASE}/api/stocks${query ? "?" + query : ""}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`fetchStocks failed: ${res.status}`);
+  const body = await res.json();
+  return {
+    stocks: (body.data || []).map(normalizeStock),
+    totalCount: body.totalCount || 0,
+    totalPages: body.totalPages || 1,
+    page: body.page || 0,
+  };
+}
+
+/**
+ * GET /api/stocks/featured — 시가총액 TOP10 종목 조회
+ * @returns {Promise<Object[]>}
+ */
+async function fetchFeaturedStocks() {
+  const res = await fetch(`${API_BASE}/api/stocks/featured`);
+  if (!res.ok) throw new Error(`fetchFeaturedStocks failed: ${res.status}`);
   const data = await res.json();
   return data.map(normalizeStock);
 }

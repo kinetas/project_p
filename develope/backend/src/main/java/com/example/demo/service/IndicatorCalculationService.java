@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -68,26 +67,22 @@ public class IndicatorCalculationService {
         }
         String bsnsYear = bsnsYearOpt.get();
 
-        // 4. CFS 우선 조회, 없으면 OFS 조회
-        List<FinancialStatementEntity> rows =
-                financialStatementRepository.findByStockCodeAndBsnsYearAndFsDivOrderByOrdAsc(stockCode, bsnsYear, "CFS");
-        if (rows.isEmpty()) {
-            rows = financialStatementRepository.findByStockCodeAndBsnsYearAndFsDivOrderByOrdAsc(stockCode, bsnsYear, "OFS");
-        }
-        if (rows.isEmpty()) {
+        // 4. 재무데이터 조회 (CFS/OFS 저장 시 이미 통합됨)
+        Optional<FinancialStatementEntity> fsOpt =
+                financialStatementRepository.findByStockCodeAndBsnsYear(stockCode, bsnsYear);
+        if (fsOpt.isEmpty()) {
             log.warn("[Indicator] 재무제표 데이터 없음 — stockCode: {}, bsnsYear: {}", stockCode, bsnsYear);
             return;
         }
+        FinancialStatementEntity fs = fsOpt.get();
 
-        // 5. account_nm 기준 금액 추출
-        Long revenue          = extractAmount(rows, "매출액", "수익(매출액)", "영업수익");
-        Long operatingProfit  = extractAmount(rows, "영업이익", "영업이익(손실)");
-        Long netIncome        = extractAmount(rows, "당기순이익", "당기순이익(손실)");
-        Long totalAssets      = extractAmount(rows, "자산총계");
-        Long totalLiabilities = extractAmount(rows, "부채총계");
-        Long totalEquity      = extractAmount(rows, "자본총계");
+        Long revenue          = fs.getRevenue();
+        Long operatingProfit  = fs.getOperatingIncome();
+        Long netIncome        = fs.getNetIncome();
+        Long totalLiabilities = fs.getTotalLiabilities();
+        Long totalEquity      = fs.getTotalEquity();
 
-        // 6. 배당 조회
+        // 5. 배당 조회
         BigDecimal dividendAmt = null;
         String isinCd = company.getIsinCd();
         if (isinCd != null) {
@@ -97,7 +92,7 @@ public class IndicatorCalculationService {
             }
         }
 
-        // 7. 지표 계산 (null 안전, BigDecimal 사용)
+        // 6. 지표 계산 (null 안전, BigDecimal 사용)
         BigDecimal shareCountBd = toLong2Bd(lstgStCnt);
         BigDecimal priceBd      = toLong2Bd(clpr);
 
@@ -110,7 +105,7 @@ public class IndicatorCalculationService {
         BigDecimal debtRatio       = percentOrNull(toLong2Bd(totalLiabilities), toLong2Bd(totalEquity));
         BigDecimal dividendYield   = calcDividendYield(dividendAmt, priceBd);
 
-        // 8. StockIndicatorEntity UPSERT
+        // 7. StockIndicatorEntity UPSERT
         String calcYear = String.valueOf(java.time.LocalDate.now().getYear());
         StockIndicatorId indicatorId = new StockIndicatorId(stockCode, calcYear);
 
@@ -134,27 +129,10 @@ public class IndicatorCalculationService {
         log.info("[Indicator] 지표 저장 완료 — stockCode: {}, calcYear: {}, bsnsYear: {}", stockCode, calcYear, bsnsYear);
     }
 
-    /**
-     * rows 순서대로 accountNm이 names 배열 중 하나와 equals이면 thstrmAmount 반환
-     */
-    private Long extractAmount(List<FinancialStatementEntity> rows, String... names) {
-        for (FinancialStatementEntity row : rows) {
-            if (row.getAccountNm() == null) continue;
-            for (String name : names) {
-                if (row.getAccountNm().equals(name)) {
-                    return row.getThstrmAmount();
-                }
-            }
-        }
-        return null;
-    }
-
-    /** Long → BigDecimal 변환, null이면 null 반환 */
     private BigDecimal toLong2Bd(Long value) {
         return value == null ? null : BigDecimal.valueOf(value);
     }
 
-    /** numerator / denominator, denominator가 null이거나 0이면 null */
     private BigDecimal divideOrNull(BigDecimal numerator, BigDecimal denominator) {
         if (numerator == null || denominator == null || denominator.compareTo(BigDecimal.ZERO) == 0) {
             return null;
@@ -162,7 +140,6 @@ public class IndicatorCalculationService {
         return numerator.divide(denominator, 2, RoundingMode.HALF_UP);
     }
 
-    /** (numerator / denominator) * 100, denominator가 null이거나 0이면 null */
     private BigDecimal percentOrNull(BigDecimal numerator, BigDecimal denominator) {
         if (numerator == null || denominator == null || denominator.compareTo(BigDecimal.ZERO) == 0) {
             return null;
@@ -171,7 +148,6 @@ public class IndicatorCalculationService {
                 .divide(denominator, 2, RoundingMode.HALF_UP);
     }
 
-    /** 배당수익률 = (dividendAmt / price) * 100 */
     private BigDecimal calcDividendYield(BigDecimal dividendAmt, BigDecimal price) {
         if (dividendAmt == null || price == null || price.compareTo(BigDecimal.ZERO) == 0) {
             return null;
