@@ -40,7 +40,7 @@ public class KrxCollectorService {
         String basDt = getLastTradingDay();
         log.info("[FSC] 기준일자: {}", basDt);
         collectByMarket("KOSPI", basDt);
-        collectByMarket("KOSDAQ", basDt);
+        // collectByMarket("KOSDAQ", basDt);
     }
 
     private void collectByMarket(String market, String basDt) {
