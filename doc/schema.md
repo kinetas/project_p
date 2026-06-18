@@ -6,27 +6,29 @@
 1. DART 회사목록 API
    → company 테이블 저장 (corp_code, stock_code, corp_name, corp_cls)
 
-2. company.corp_code 기준으로 DART API 2종 호출
+2. company.corp_code 기준으로 DART 재무제표 API 호출
    2a. DART 재무제표 API (fnlttMultiAcnt)
        → financial_statement 테이블 저장
-
-   2b. DART 배당 API (alotMatter)
-       se='현금배당수익률(%)' && stock_knd='보통주' 행만 추출
-       → dividend_info 테이블 저장
 
 3. 공공데이터 주식시세 API 호출 (srtnCd)
    srtnCd == company.stock_code 로 매칭
    → stock_price 테이블 저장
+   → stock_price.isinCd 값을 company.isinCd 에 역참조 저장
 
-4. financial_statement + stock_price 데이터가 모두 쌓인 후 지표 계산
+4. 공공데이터 배당정보 API 호출 (GetStocDiviInfoService_V2, JSON)
+   전체 페이지 수집 후 isinCd == company.isinCd 로 매칭
+   → dividend_info 테이블 저장 (API 응답 필드 전체 보존)
+
+5. financial_statement + stock_price 데이터가 모두 쌓인 후 지표 계산
    → stock_indicator 테이블 (calc_year 기준 UPSERT)
    계산 규칙: calc_year(현재연도) = bsns_year(전년도) 재무 + 최근 영업일 주가
    (배당수익률은 dividend_info에서 직접 조회하므로 stock_indicator 미포함)
 ```
 
 **키 연결 관계**
-- DART `corp_code` (8자리) → 재무제표·배당 조회 키
+- DART `corp_code` (8자리) → 재무제표 조회 키
 - DART `stock_code` (6자리) == 공공데이터 `srtnCd` (6자리) → 주식시세 매칭 키
+- `isinCd` (12자리) → `stock_price.isinCd` == `company.isinCd` == `dividend_info.isinCd` → 배당정보 매칭 키
 
 ---
 
@@ -52,8 +54,9 @@
 
 | 컬럼 | 설명 |
 |------|------|
-| corp_code | DART 고유번호 (8자리) — 재무제표·배당 조회 키 |
+| corp_code | DART 고유번호 (8자리) — 재무제표 조회 키 |
 | stock_code | 종목코드 (6자리) — 주식시세 매칭 키 (srtnCd와 동일) |
+| isinCd | ISIN 코드 (12자리) — 배당정보·주식시세 매칭 키 (stock_price 적재 후 역참조 저장) |
 | corp_name | 종목명(법인명) |
 | corp_cls | 법인구분 (Y: 유가, K: 코스닥, N: 코넥스, E: 기타) |
 
@@ -88,21 +91,34 @@
 
 ---
 
-### 4. 배당 정보 테이블 (`dividend_info`) — DART `alotMatter` API 기준
-적재 순서 2b단계. company.corp_code로 호출. API 응답 중 `se='주당 현금배당금(원)' && stock_knd='보통주'` 행만 추출하여 저장.
-`stock_indicator.dividend_yield` 계산 시 `div_per_share_thstrm`(전년도) ÷ 현재 주가 × 100 으로 사용.
+### 4. 배당 정보 테이블 (`dividend_info`) — 공공데이터(금융위원회) `GetStocDiviInfoService_V2` API 기준
+적재 순서 4단계. API 전체 페이지 수집 후 `isinCd == company.isinCd` 로 매칭하여 저장.
+API 응답 필드를 전량 보존. `stock_indicator.dividend_yield` 계산 시 `stckGenrDvdnAmt`(주식일반배당금액) ÷ 현재 주가 × 100 으로 사용.
 
 | 컬럼 | 설명 |
 |------|------|
-| corp_code | DART 고유번호 (8자리) |
-| stock_code | 종목코드 (6자리) — company.stock_code 참조 |
-| bsns_year | 사업연도 (4자리) |
-| reprt_code | 보고서 코드 (11013/11012/11014/11011) |
-| stlm_dt | 결산기준일 (YYYY-MM-DD) |
-| div_per_share_thstrm | 당기 주당 현금배당금 (원) — 보통주 기준 |
-| div_per_share_frmtrm | 전기 주당 현금배당금 (원) |
-| div_per_share_lwfr | 전전기 주당 현금배당금 (원) |
-| rcept_no | DART 접수번호 (14자리) |
+| basDt | 기준일자 (YYYYMMDD) — 데이터 갱신 기준일, 일 1회 업데이트 |
+| isinCd | ISIN 코드 (12자리) — company.isinCd 참조, 배당 레코드 식별 핵심 키 |
+| crno | 법인등록번호 (13자리) |
+| stckIssuCmpyNm | 주식발행회사명 |
+| dvdnBasDt | 배당기준일자 (YYYYMMDD) — 배당 권리 기준일 |
+| cashDvdnPayDt | 현금배당지급일자 (YYYYMMDD) |
+| stckHndvDt | 주식교부일자 (YYYYMMDD) |
+| isinCdNm | ISIN 코드명 |
+| stckDvdnRcd | 주식배당사유코드 (2자리, ex. 04) |
+| stckDvdnRcdNm | 주식배당사유코드명 (ex. 무배당) |
+| trsnmDptyDcd | 명의개서대리인구분코드 (2자리) |
+| trsnmDptyDcdNm | 명의개서대리인구분코드명 (ex. 하나은행) |
+| scrsItmsKcd | 유가증권종목종류코드 (4자리, ex. 0101) |
+| scrsItmsKcdNm | 유가증권종목종류코드명 (ex. 보통주) |
+| stckGenrDvdnAmt | 주식일반배당금액 — 1주당 현금 배당 금액, dividend_yield 계산에 사용 |
+| stckGrdnDvdnAmt | 주식차등배당금액 |
+| stckGenrCashDvdnRt | 주식일반현금배당률 |
+| stckGenrDvdnRt | 주식일반배당률 |
+| cashGrdnDvdnRt | 현금차등배당률 |
+| stckGrdnDvdnRt | 주식차등배당률 |
+| stckParPrc | 주식액면가 |
+| stckStacMd | 주식결산월일 (4자리, ex. 12 → 12월 결산) |
 
 ---
 
@@ -131,9 +147,9 @@
 ---
 
 ### 6. 지표 계산 테이블 (`stock_indicator`)
-적재 순서 4단계. financial_statement + stock_price + dividend_info 기반으로 계산.
+적재 순서 5단계. financial_statement + stock_price + dividend_info 기반으로 계산.
 **calc_year(현재연도) 기준 1행 UPSERT** — 26년이면 25년 재무제표 + 26년 최근 영업일 주가 사용.
-`dividend_yield` = `dividend_info.div_per_share_thstrm`(전년도) ÷ `stock_price.clpr`(현재) × 100 으로 계산.
+`dividend_yield` = `dividend_info.stckGenrDvdnAmt`(직전 배당기준일 기준 1주당 현금 배당금) ÷ `stock_price.clpr`(현재) × 100 으로 계산.
 
 | 컬럼 | 설명 |
 |------|------|
@@ -184,16 +200,15 @@ KRX 시가총액 기준 상위 100개 종목을 주기적으로 스냅샷 저장
 
 ---
 
-### 10. 투자일지 테이블 (`investment_journal`)
-유저가 종목별로 매수/매도 근거, 투자 메모 등을 기록하는 일지. user_id + 작성일시 기준으로 식별.
+### 10. 커뮤니티 게시글 테이블 (`investment_journal`)
+종목별 투자 의견을 공유하는 커뮤니티 게시판. 댓글(`comment`) 테이블과 연결.
 
 | 컬럼 | 설명 |
 |------|------|
-| journal_id | 일지 고유 ID (PK) |
+| journal_id | 게시글 고유 ID (PK) |
 | user_id | 작성자 유저 ID — user.user_id 참조 |
-| stock_code | 관련 종목코드 — company.stock_code 참조 |
-| title | 일지 제목 |
-| content | 일지 본문 |
+| title | 게시글 제목 |
+| content | 게시글 본문 |
 | created_at | 작성일시 |
 | updated_at | 최종 수정일시 |
 
@@ -220,7 +235,7 @@ KRX 시가총액 기준 상위 100개 종목을 주기적으로 스냅샷 저장
 - `company` (corp_name)
 - `stock_price` (clpr, fltRt, mrktTotAmt 등)
 - `stock_indicator` (per, pbr, roe 등)
-- `dividend_info` (div_yield_thstrm)
+- `dividend_info` (stckGenrDvdnAmt, dvdnBasDt)
 
 ---
 

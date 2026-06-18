@@ -112,6 +112,7 @@ public class KrxCollectorService {
 
             if (stockCode == null || stockName == null) return;
 
+            String isinCd         = parseString(item, "isinCd");
             Long currentPrice     = parseLong(item, "clpr");
             Long changeAmount     = parseLong(item, "vs");
             Double changeRate     = parseDouble(item, "fltRt");
@@ -131,6 +132,7 @@ public class KrxCollectorService {
                         .sector(e.getSector())
                         .listingDate(e.getListingDate())
                         .ceoName(e.getCeoName())
+                        .isinCd(isinCd)
                         .currentPrice(currentPrice)
                         .changeAmount(changeAmount)
                         .changeRate(changeRate)
@@ -151,6 +153,7 @@ public class KrxCollectorService {
                         .stockCode(stockCode)
                         .stockName(stockName)
                         .market(market)
+                        .isinCd(isinCd)
                         .currentPrice(currentPrice)
                         .changeAmount(changeAmount)
                         .changeRate(changeRate)

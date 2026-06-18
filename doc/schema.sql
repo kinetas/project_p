@@ -23,10 +23,12 @@ CREATE TABLE IF NOT EXISTS market_index (
 CREATE TABLE IF NOT EXISTS company (
     corp_code  CHAR(8)      NOT NULL COMMENT 'DART 고유번호 (8자리)',
     stock_code CHAR(6)      NOT NULL COMMENT '종목코드 (6자리)',
+    isinCd     VARCHAR(12)      NULL COMMENT 'ISIN 코드 (12자리) — stock_price 적재 후 역참조 저장',
     corp_name  VARCHAR(100) NOT NULL COMMENT '법인명',
     corp_cls   CHAR(1)      NOT NULL COMMENT '법인구분 (Y:유가 K:코스닥 N:코넥스 E:기타)',
     PRIMARY KEY (corp_code),
-    UNIQUE KEY uq_company_stock_code (stock_code)
+    UNIQUE KEY uq_company_stock_code (stock_code),
+    UNIQUE KEY uq_company_isincd (isinCd)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='DART 기준 상장 법인 목록';
 
 -- -------------------------------------------------------------
@@ -72,25 +74,38 @@ CREATE TABLE IF NOT EXISTS financial_statement (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='DART 재무제표 원본 데이터';
 
 -- -------------------------------------------------------------
--- 5. 배당 정보 (dividend_info) — DART alotMatter API
--- 적재 순서 2b단계
--- se='주당 현금배당금(원)' && stock_knd='보통주' 행만 추출하여 저장
--- dividend_yield 계산 시 div_per_share_thstrm ÷ 현재 주가 × 100 으로 사용
+-- 5. 배당 정보 (dividend_info) — 금융위원회 GetStocDiviInfoService_V2 API (JSON)
+-- 적재 순서 4단계
+-- 전체 페이지 수집 후 isinCd == company.isinCd 로 매칭
+-- dividend_yield 계산 시 stckGenrDvdnAmt ÷ 현재 주가 × 100 으로 사용
 -- -------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS dividend_info (
-    corp_code              CHAR(8)  NOT NULL COMMENT 'DART 고유번호',
-    stock_code             CHAR(6)  NOT NULL COMMENT '종목코드',
-    bsns_year              CHAR(4)  NOT NULL COMMENT '사업연도',
-    reprt_code             CHAR(5)  NOT NULL COMMENT '보고서코드',
-    stlm_dt                DATE         NULL COMMENT '결산기준일',
-    div_per_share_thstrm   BIGINT       NULL COMMENT '당기 주당 현금배당금 (원) — 보통주',
-    div_per_share_frmtrm   BIGINT       NULL COMMENT '전기 주당 현금배당금 (원)',
-    div_per_share_lwfr     BIGINT       NULL COMMENT '전전기 주당 현금배당금 (원)',
-    rcept_no               CHAR(14)     NULL COMMENT 'DART 접수번호',
-    PRIMARY KEY (corp_code, bsns_year, reprt_code),
-    KEY idx_div_stock (stock_code),
-    CONSTRAINT fk_div_company FOREIGN KEY (stock_code) REFERENCES company (stock_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='DART alotMatter — 주당 현금배당금(보통주) 추출 저장';
+    isinCd            VARCHAR(12)    NOT NULL COMMENT 'ISIN 코드 (12자리) — company.isinCd 참조',
+    basDt             CHAR(8)        NOT NULL COMMENT '기준일자 (YYYYMMDD) — 데이터 갱신 기준일',
+    crno              VARCHAR(13)        NULL COMMENT '법인등록번호 (13자리)',
+    stckIssuCmpyNm    VARCHAR(200)       NULL COMMENT '주식발행회사명',
+    dvdnBasDt         CHAR(8)            NULL COMMENT '배당기준일자 (YYYYMMDD)',
+    cashDvdnPayDt     CHAR(8)            NULL COMMENT '현금배당지급일자 (YYYYMMDD)',
+    stckHndvDt        CHAR(8)            NULL COMMENT '주식교부일자 (YYYYMMDD)',
+    isinCdNm          VARCHAR(200)       NULL COMMENT 'ISIN 코드명',
+    stckDvdnRcd       VARCHAR(2)         NULL COMMENT '주식배당사유코드',
+    stckDvdnRcdNm     VARCHAR(100)       NULL COMMENT '주식배당사유코드명',
+    trsnmDptyDcd      VARCHAR(2)         NULL COMMENT '명의개서대리인구분코드',
+    trsnmDptyDcdNm    VARCHAR(100)       NULL COMMENT '명의개서대리인구분코드명',
+    scrsItmsKcd       VARCHAR(4)         NULL COMMENT '유가증권종목종류코드',
+    scrsItmsKcdNm     VARCHAR(100)       NULL COMMENT '유가증권종목종류코드명',
+    stckGenrDvdnAmt   DECIMAL(22, 3)     NULL COMMENT '주식일반배당금액 — 1주당 현금 배당 금액',
+    stckGrdnDvdnAmt   DECIMAL(22, 3)     NULL COMMENT '주식차등배당금액',
+    stckGenrCashDvdnRt DECIMAL(26, 10)   NULL COMMENT '주식일반현금배당률',
+    stckGenrDvdnRt    DECIMAL(26, 10)    NULL COMMENT '주식일반배당률',
+    cashGrdnDvdnRt    DECIMAL(26, 10)    NULL COMMENT '현금차등배당률',
+    stckGrdnDvdnRt    DECIMAL(26, 10)    NULL COMMENT '주식차등배당률',
+    stckParPrc        DECIMAL(22, 3)     NULL COMMENT '주식액면가',
+    stckStacMd        VARCHAR(4)         NULL COMMENT '주식결산월일 (ex. 12)',
+    PRIMARY KEY (isinCd, basDt),
+    KEY idx_div_isincd (isinCd),
+    CONSTRAINT fk_div_company FOREIGN KEY (isinCd) REFERENCES company (isinCd)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='금융위원회 주식배당정보 — API 응답 전량 저장';
 
 -- -------------------------------------------------------------
 -- 6. 주식시세 (stock_price) — 금융위원회 공공데이터
@@ -119,10 +134,10 @@ CREATE TABLE IF NOT EXISTS stock_price (
 
 -- -------------------------------------------------------------
 -- 7. 지표 계산 (stock_indicator)
--- 적재 순서 4단계
+-- 적재 순서 5단계
 -- calc_year(현재연도) 기준 1행 UPSERT
 -- 예: 2026년 계산 → bsns_year=2025 재무 + 2026 최근 영업일 주가
--- dividend_yield = dividend_info.div_per_share_thstrm(전년도) ÷ stock_price.clpr(현재) × 100
+-- dividend_yield = dividend_info.stckGenrDvdnAmt(직전 배당기준일) ÷ stock_price.clpr(현재) × 100
 -- -------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS stock_indicator (
     stock_code        CHAR(6)        NOT NULL COMMENT '종목코드',
@@ -170,22 +185,21 @@ CREATE TABLE IF NOT EXISTS top100 (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='시가총액 기준 상위 100 종목 일별 스냅샷';
 
 -- -------------------------------------------------------------
--- 10. 투자일지 (investment_journal)
+-- 10. 커뮤니티 게시글 (investment_journal)
+-- 종목별 투자 의견을 공유하는 커뮤니티 게시판 — 댓글(comment) 연결
 -- -------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS investment_journal (
-    journal_id BIGINT       NOT NULL AUTO_INCREMENT COMMENT '일지 고유 ID',
+    journal_id BIGINT       NOT NULL AUTO_INCREMENT COMMENT '게시글 고유 ID',
     user_id    BIGINT       NOT NULL COMMENT '작성자 유저 ID',
-    stock_code CHAR(6)      NOT NULL COMMENT '관련 종목코드',
-    title      VARCHAR(255) NOT NULL COMMENT '일지 제목',
-    content    TEXT             NULL COMMENT '일지 본문',
+    title      VARCHAR(255) NOT NULL COMMENT '게시글 제목',
+    content    TEXT             NULL COMMENT '게시글 본문',
     created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '작성일시',
     updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '최종 수정일시',
     PRIMARY KEY (journal_id),
     KEY idx_ij_user  (user_id),
     KEY idx_ij_stock (stock_code),
     CONSTRAINT fk_ij_user    FOREIGN KEY (user_id)    REFERENCES `user` (user_id),
-    CONSTRAINT fk_ij_company FOREIGN KEY (stock_code) REFERENCES company (stock_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='유저 종목별 투자일지';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='종목별 투자 의견 커뮤니티 게시글';
 
 -- -------------------------------------------------------------
 -- 11. 댓글 (comment)

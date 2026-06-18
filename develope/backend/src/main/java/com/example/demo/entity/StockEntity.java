@@ -73,6 +73,9 @@ public class StockEntity {
     @Column(name = "operating_margin")
     private Double operatingMargin;
 
+    @Column(name = "isin_cd")
+    private String isinCd;
+
     @Column(name = "dart_corp_code")
     private String dartCorpCode;
 

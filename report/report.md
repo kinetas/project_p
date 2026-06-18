@@ -1,6 +1,6 @@
 # Project Report
 
-Last Update: 2026-06-14 (frontend_deploy 세그먼트 완료 반영)
+Last Update: 2026-06-18 (TASK-032, TASK-033, TASK-034 완료 반영)
 
 ---
 
@@ -19,12 +19,15 @@ Last Update: 2026-06-14 (frontend_deploy 세그먼트 완료 반영)
 - SEG-06 frontend_api 완료 (data.js API 함수 추가, home.js/list.js/detail.js 백엔드 API 연동)
 - SEG-07 backend_market 완료 (MarketIndexResponse DTO, MarketIndexController 생성, data.js fetchMarketIndices() 추가, home.js 시장 지표 API 연동)
 - SEG-08 frontend_deploy 완료 (list.js 검색/시장 필터 보완, develope/front/ → resources/static/ 16개 파일 배포)
-- 프로젝트 전체 개발 완료
+- TASK-032 완료: StockEntity에 isinCd 필드 추가, KrxCollectorService isinCd 파싱/저장 연동
+- TASK-033 완료: 배당정보 Entity/Repository/CollectorService 신규 생성 (DividendId, DividendEntity, DividendRepository, DividendCollectorService)
+- TASK-034 완료: DataCollectionScheduler에 배당정보 수집 Step 2 추가, 전체 파이프라인 7단계로 확장
+- 프로젝트 전체 개발 완료 + 배당 데이터 파이프라인 추가
 
 ## Overall Completion
 - Planning: 100%
 - Core System: 100%
-- Extension System: 0%
+- Extension System: 100%
 - UI/UX: 100%
 
 ---
@@ -41,12 +44,34 @@ Last Update: 2026-06-14 (frontend_deploy 세그먼트 완료 반영)
 | SEG-06 frontend_api (TASK-022~025) | Manager AI | 완료 |
 | SEG-07 backend_market (TASK-026~027) | Manager AI | 완료 |
 | SEG-08 frontend_deploy (TASK-028~029) | Manager AI | 완료 |
+| isinCd 필드 추가 (TASK-032) | backend-developer | 완료 |
+| 배당정보 파이프라인 구축 (TASK-033) | backend-developer | 완료 |
+| Scheduler 배당 수집 연동 (TASK-034) | backend-developer | 완료 |
 
-전체 세그먼트 완료 — 추가 작업 없음
+전체 세그먼트 완료 + 배당 데이터 파이프라인 추가 작업 완료
 
 ---
 
 # Patch Notes
+
+## 2026-06-18
+- TASK-032 (isinCd 필드 추가): StockEntity에 `isinCd` 필드 추가, KrxCollectorService `saveStock()` 파싱/빌더 체인 연동 — 완료
+  - 수정 파일:
+    - entity/StockEntity.java (`isinCd` 필드 추가, `@Column(name="isin_cd")`)
+    - service/KrxCollectorService.java (`saveStock()` 내 `isinCd` 파싱 및 신규/기존 빌더 체인 반영)
+  - 토큰 소모량: 약 4,300 tokens (입력 3,500 + 출력 800)
+- TASK-033 (배당정보 파이프라인 구축): 배당정보 수집 Entity/Repository/Service 신규 생성 — 완료
+  - 생성 파일:
+    - entity/DividendId.java (`@Embeddable` 복합키, isinCd + basDt, `Serializable`)
+    - entity/DividendEntity.java (`@Entity`, `@Table(name="dividend_info")`, 필드 22개, BigDecimal 8개)
+    - repository/DividendRepository.java (`JpaRepository<DividendEntity, DividendId>`)
+    - service/DividendCollectorService.java (금융위원회 API 페이지네이션 수집, upsert, graceful fallback)
+  - 토큰 소모량: 약 6,500 tokens (입력 4,500 + 출력 2,000)
+- TASK-034 (Scheduler 배당 수집 연동): DataCollectionScheduler에 배당정보 수집 Step 2 삽입, 파이프라인 7단계로 확장 — 완료
+  - 수정 파일:
+    - config/DataCollectionScheduler.java (DividendCollectorService 주입, dailyCollection() Step 2 신규 추가, 기존 Step 2~6 → Step 3~7 재조정)
+  - 최종 파이프라인: Step1(KRX) → Step2(배당정보) → Step3(전체종목조회) → Step4(DART매핑) → Step5(기업개황) → Step6(재무수집) → Step7(지표계산)
+  - 토큰 소모량: 약 3,700 tokens (입력 2,500 + 출력 1,200)
 
 ## 2026-06-14
 - SEG-01 infra: DB스키마 DDL, application.properties — 완료
@@ -140,6 +165,9 @@ Last Update: 2026-06-14 (frontend_deploy 세그먼트 완료 반영)
 | Manager AI | SEG-06 frontend_api 완료 (TASK-022~025) — data.js API fetch/정규화 함수 추가, home.js/list.js/detail.js 백엔드 연동 및 MOCK_STOCKS fallback 적용 |
 | Manager AI | SEG-07 backend_market 완료 (TASK-026~027) — MarketIndexResponse DTO, MarketIndexController(GET /api/market/indices) 신규 생성, data.js fetchMarketIndices() 추가, home.js 시장 지표 API 연동 및 fallback 처리 |
 | Manager AI | SEG-08 frontend_deploy 완료 (TASK-028~029) — list.js market 파라미터/async 개선, develope/front/ → resources/static/ 16개 파일 배포 (HTML 5, CSS 5, JS 6) |
+| backend-developer | TASK-032 완료 — StockEntity isinCd 필드 추가, KrxCollectorService 파싱/빌더 연동 (~4,300 tokens) |
+| backend-developer | TASK-033 완료 — DividendId, DividendEntity, DividendRepository, DividendCollectorService 신규 생성 (~6,500 tokens) |
+| backend-developer | TASK-034 완료 — DataCollectionScheduler 배당 수집 Step 2 추가, 파이프라인 7단계 확장 (~3,700 tokens) |
 
 ---
 
@@ -157,3 +185,6 @@ Last Update: 2026-06-14 (frontend_deploy 세그먼트 완료 반영)
 - TASK-027_frontend_developer.md (data.js fetchMarketIndices() 추가, home.js 시장 지표 API 연동)
 - TASK-028_frontend_developer.md (list.js loadStocks market 파라미터, applyFilter/resetFilter async 전환 및 API 재호출)
 - TASK-029_devops.md (develope/front/ → resources/static/ 배포, 총 16개 파일)
+- TASK-032_backend-developer.md (StockEntity isinCd 필드 추가, KrxCollectorService isinCd 파싱/저장 연동)
+- TASK-033_backend-developer.md (DividendId/DividendEntity/DividendRepository/DividendCollectorService 신규 생성)
+- TASK-034_backend-developer.md (DataCollectionScheduler 배당 수집 Step 2 추가, 파이프라인 7단계 확장)

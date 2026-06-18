@@ -131,13 +131,17 @@ public class DartCollectorService {
      * 연결재무제표(CFS) 우선, 없으면 개별재무제표(OFS) 사용
      * 매출액 / 영업이익 / 당기순이익 / 자산총계 / 부채총계 / 자본총계 파싱
      */
+    /**
+     * 사업보고서(11011) 1회 호출로 당기(year)·전기(year-1)·전전기(year-2) 3개 연도를 한번에 저장.
+     * API 호출 횟수: 기존 5회 → 2회 (스케줄러에서 {currentYear-1, currentYear-4} 2개 연도만 호출)
+     */
     public void collectFinancials(String dartCorpCode, String stockCode, int year) {
         try {
             String url = MULTI_ACNT_URL
                     + "?crtfc_key=" + dartApiKey
                     + "&corp_code=" + dartCorpCode
                     + "&bsns_year=" + year
-                    + "&reprt_code=11011";   // 사업보고서
+                    + "&reprt_code=11011";
 
             Map response = restTemplate.getForObject(url, Map.class);
 
@@ -161,46 +165,59 @@ public class DartCollectorService {
                     .toList();
             List<Map<String, Object>> target = cfsItems.isEmpty() ? items : cfsItems;
 
-            Long revenue          = extractByAccountNm(target, "매출액", "수익(매출액)", "영업수익");
-            Long operatingProfit  = extractByAccountNm(target, "영업이익", "영업이익(손실)");
-            Long netIncome        = extractByAccountNm(target, "당기순이익", "당기순이익(손실)");
-            Long totalAssets      = extractByAccountNm(target, "자산총계");
-            Long totalLiabilities = extractByAccountNm(target, "부채총계");
-            Long totalEquity      = extractByAccountNm(target, "자본총계");
+            // 당기(year), 전기(year-1), 전전기(year-2) 각각 별도 행으로 저장
+            saveFinancialYear(stockCode, year,     target, "thstrm_amount");
+            saveFinancialYear(stockCode, year - 1, target, "frmtrm_amount");
+            saveFinancialYear(stockCode, year - 2, target, "bfefrmtrm_amount");
 
-            Optional<FinancialEntity> existingOpt = financialRepository.findByStockCodeAndYear(stockCode, year);
-
-            FinancialEntity entity;
-            if (existingOpt.isPresent()) {
-                FinancialEntity existing = existingOpt.get();
-                entity = existing.toBuilder()
-                        .revenue(revenue)
-                        .operatingProfit(operatingProfit)
-                        .netIncome(netIncome)
-                        .totalAssets(totalAssets)
-                        .totalLiabilities(totalLiabilities)
-                        .totalEquity(totalEquity)
-                        .build();
-            } else {
-                entity = FinancialEntity.builder()
-                        .stockCode(stockCode)
-                        .year(year)
-                        .revenue(revenue)
-                        .operatingProfit(operatingProfit)
-                        .netIncome(netIncome)
-                        .totalAssets(totalAssets)
-                        .totalLiabilities(totalLiabilities)
-                        .totalEquity(totalEquity)
-                        .build();
-            }
-
-            financialRepository.save(entity);
-            log.info("[DART] 재무제표 저장 완료 — stockCode: {}, year: {}", stockCode, year);
+            log.info("[DART] 재무제표 저장 완료 — stockCode: {}, years: {}/{}/{}",
+                    stockCode, year, year - 1, year - 2);
 
         } catch (Exception e) {
             log.error("[DART] fnlttMultiAcnt 실패 — stockCode: {}, year: {}, error: {}",
                     stockCode, year, e.getMessage());
         }
+    }
+
+    private void saveFinancialYear(String stockCode, int year,
+                                   List<Map<String, Object>> items, String amountField) {
+        Long revenue          = extractByField(items, amountField, "매출액", "수익(매출액)", "영업수익");
+        Long operatingProfit  = extractByField(items, amountField, "영업이익", "영업이익(손실)");
+        Long netIncome        = extractByField(items, amountField, "당기순이익", "당기순이익(손실)");
+        Long totalAssets      = extractByField(items, amountField, "자산총계");
+        Long totalLiabilities = extractByField(items, amountField, "부채총계");
+        Long totalEquity      = extractByField(items, amountField, "자본총계");
+
+        // 모든 값이 null이면 해당 연도 데이터 없음 — 저장 스킵
+        if (revenue == null && operatingProfit == null && netIncome == null
+                && totalAssets == null && totalLiabilities == null && totalEquity == null) {
+            return;
+        }
+
+        Optional<FinancialEntity> existingOpt = financialRepository.findByStockCodeAndYear(stockCode, year);
+        FinancialEntity entity;
+        if (existingOpt.isPresent()) {
+            entity = existingOpt.get().toBuilder()
+                    .revenue(revenue)
+                    .operatingProfit(operatingProfit)
+                    .netIncome(netIncome)
+                    .totalAssets(totalAssets)
+                    .totalLiabilities(totalLiabilities)
+                    .totalEquity(totalEquity)
+                    .build();
+        } else {
+            entity = FinancialEntity.builder()
+                    .stockCode(stockCode)
+                    .year(year)
+                    .revenue(revenue)
+                    .operatingProfit(operatingProfit)
+                    .netIncome(netIncome)
+                    .totalAssets(totalAssets)
+                    .totalLiabilities(totalLiabilities)
+                    .totalEquity(totalEquity)
+                    .build();
+        }
+        financialRepository.save(entity);
     }
 
     // ──────────────────────────────────────────────────────────
@@ -241,12 +258,12 @@ public class DartCollectorService {
         return nodes.getLength() > 0 ? nodes.item(0).getTextContent() : null;
     }
 
-    /** account_nm 기준으로 thstrm_amount 추출 (후보 이름 순서대로 첫 매칭) */
-    private Long extractByAccountNm(List<Map<String, Object>> items, String... candidates) {
+    /** account_nm 기준으로 지정 금액 필드(thstrm/frmtrm/bfefrmtrm_amount) 추출 */
+    private Long extractByField(List<Map<String, Object>> items, String fieldName, String... candidates) {
         for (String candidate : candidates) {
             for (Map<String, Object> item : items) {
                 if (candidate.equals(item.get("account_nm"))) {
-                    Object val = item.get("thstrm_amount");
+                    Object val = item.get(fieldName);
                     if (val != null) {
                         try {
                             return Long.parseLong(val.toString().replace(",", "").trim());
