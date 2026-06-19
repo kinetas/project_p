@@ -26,7 +26,7 @@
 - [ ] 회원가입 / 로그인 / 로그아웃
 - [ ] 종목 목록 페이지 — PER·PBR·ROE·부채비율 기준 정렬·필터
 - [ ] 종목 검색 (종목명 또는 종목코드)
-- [ ] 가치주 TOP10 / 저PER TOP5 / 고ROE TOP5 탭 전환
+- [ ] 가치주 TOP10 / 저PER TOP5 / 고ROE TOP5
 - [ ] 종목 상세 페이지 — 요약카드 + 기업정보 + 가치지표
 - [ ] 재무제표 5년 추이 차트 (매출·영업이익 / ROE / 부채비율)
 - [ ] 재무제표 연도별 테이블 (손익계산서 / 재무상태표 / 투자지표 탭)
@@ -94,6 +94,15 @@
 | kospi_vs | DECIMAL(10,2) | 코스피 전일 대비 등락 |
 | kosdaq_close | DECIMAL(10,2) | 코스닥 종가 지수 |
 | kosdaq_vs | DECIMAL(10,2) | 코스닥 전일 대비 등락 |
+| created_at | DATETIME | 적재일시 |
+| updated_at | DATETIME | 수정일시 |
+
+### Exchange
+
+| 컬럼 | 타입 | 설명 |
+|---|---|---|
+| id | BIGINT PK AUTO_INCREMENT | 고유 ID |
+| base_dt | DATE | 기준일자 |
 | usd_krw_rate | DECIMAL(10,2) | 달러-원화 환율 |
 | usd_krw_vs | DECIMAL(10,2) | 환율 전일 대비 등락 |
 | created_at | DATETIME | 적재일시 |
@@ -115,29 +124,26 @@
 | 컬럼 | 타입 | 설명 |
 |---|---|---|
 | id | BIGINT PK AUTO_INCREMENT | 고유 ID |
-| stock_code | VARCHAR(6) | 종목코드 — company.stock_code 참조 |
-| bsns_year | CHAR(4) | 사업연도 |
-| reprt_code | VARCHAR(10) | 보고서 코드 (11011: 사업보고서 등) |
-| account_nm | VARCHAR(100) | 계정명 (예: 자본총계) |
-| fs_div | VARCHAR(5) | 개별/연결구분 (OFS/CFS) |
-| fs_nm | VARCHAR(50) | 개별/연결명 |
-| sj_div | VARCHAR(5) | 재무제표구분 (BS/IS) |
-| sj_nm | VARCHAR(50) | 재무제표명 |
-| thstrm_nm | VARCHAR(50) | 당기명 |
-| thstrm_dt | VARCHAR(30) | 당기일자 |
-| thstrm_amount | BIGINT | 당기금액 |
-| thstrm_add_amount | BIGINT | 당기누적금액 |
-| frmtrm_nm | VARCHAR(50) | 전기명 |
-| frmtrm_dt | VARCHAR(30) | 전기일자 |
-| frmtrm_amount | BIGINT | 전기금액 |
-| frmtrm_add_amount | BIGINT | 전기누적금액 |
-| bfefrmtrm_nm | VARCHAR(50) | 전전기명 (사업보고서만) |
-| bfefrmtrm_dt | VARCHAR(30) | 전전기일자 (사업보고서만) |
-| bfefrmtrm_amount | BIGINT | 전전기금액 (사업보고서만) |
-| ord | INT | 계정과목 정렬순서 |
+| bsns_year | CHAR(4) NOT NULL | 사업연도 |
+| stock_code | VARCHAR(6) NOT NULL | 종목코드 — company.stock_code 참조 |
+| reprt_code | VARCHAR(5) NOT NULL | 보고서 코드 (11011: 사업보고서 등) |
+| fs_div | VARCHAR(5) NOT NULL | 개별/연결구분 (OFS/CFS) |
+| period_nm | VARCHAR(50) | 기간명 |
+| period_dt | VARCHAR(50) | 기간일자 |
+| current_assets | BIGINT | 유동자산 |
+| non_current_assets | BIGINT | 비유동자산 |
+| total_assets | BIGINT | 자산총계 |
+| current_liabilities | BIGINT | 유동부채 |
+| non_current_liabilities | BIGINT | 비유동부채 |
+| total_liabilities | BIGINT | 부채총계 |
+| capital_stock | BIGINT | 자본금 |
+| retained_earnings | BIGINT | 이익잉여금 |
+| total_equity | BIGINT | 자본총계 |
+| revenue | BIGINT | 매출액 |
+| operating_income | BIGINT | 영업이익 |
+| income_before_tax | BIGINT | 법인세비용차감전순이익 |
+| net_income | BIGINT | 당기순이익 |
 | currency | VARCHAR(10) | 통화단위 |
-| created_at | DATETIME | 적재일시 |
-| updated_at | DATETIME | 수정일시 |
 
 ### StockPrice
 
@@ -167,30 +173,10 @@
 | 컬럼 | 타입 | 설명 |
 |---|---|---|
 | id | BIGINT PK AUTO_INCREMENT | 고유 ID |
-| bas_dt | DATE | 기준일자 |
-| isin_cd | VARCHAR(12) | ISIN 코드 — company.isin_cd 참조 |
-| crno | VARCHAR(13) | 법인등록번호 |
-| stck_issu_cmpy_nm | VARCHAR(100) | 주식발행회사명 |
-| dvdn_bas_dt | DATE | 배당기준일자 |
-| cash_dvdn_pay_dt | DATE | 현금배당지급일자 |
-| stck_hndv_dt | DATE | 주식교부일자 |
-| isin_cd_nm | VARCHAR(100) | ISIN 코드명 |
-| stck_dvdn_rcd | VARCHAR(2) | 주식배당사유코드 |
-| stck_dvdn_rcd_nm | VARCHAR(50) | 주식배당사유코드명 |
-| trsnm_dpty_dcd | VARCHAR(2) | 명의개서대리인구분코드 |
-| trsnm_dpty_dcd_nm | VARCHAR(50) | 명의개서대리인구분코드명 |
-| scrs_itms_kcd | VARCHAR(4) | 유가증권종목종류코드 |
-| scrs_itms_kcd_nm | VARCHAR(50) | 유가증권종목종류코드명 |
-| stck_genr_dvdn_amt | BIGINT | 주식일반배당금액 (1주당 현금 배당금) |
-| stck_grdn_dvdn_amt | BIGINT | 주식차등배당금액 |
-| stck_genr_cash_dvdn_rt | DECIMAL(10,4) | 주식일반현금배당률 |
-| stck_genr_dvdn_rt | DECIMAL(10,4) | 주식일반배당률 |
-| cash_grdn_dvdn_rt | DECIMAL(10,4) | 현금차등배당률 |
-| stck_grdn_dvdn_rt | DECIMAL(10,4) | 주식차등배당률 |
-| stck_par_prc | BIGINT | 주식액면가 |
-| stck_stac_md | VARCHAR(4) | 주식결산월일 |
-| created_at | DATETIME | 적재일시 |
-| updated_at | DATETIME | 수정일시 |
+| corp_code | VARCHAR(8) UNIQUE | 고유 번호 |
+|dividend_kind | VARCHAR(6) | 보통주, 우선주 |
+| dividend_amount | BIGINT | 주당배당금 |
+| stlm_dt | DATETIME | 배당일시 |
 
 ### StockIndicator
 
@@ -220,10 +206,9 @@
 |---|---|---|
 | id | BIGINT PK AUTO_INCREMENT | 고유 ID |
 | base_dt | DATE | 기준일자 |
-| rank | INT | 순위 (1~100) |
 | corp_code | VARCHAR(8) | DART 고유번호 — company.corp_code 참조 |
 | stock_code | VARCHAR(6) | 종목코드 — company.stock_code 참조 |
-| bsns_year | CHAR(4) | 지표 계산에 사용된 사업연도 |
+| score | INT | 점수 반영 |
 | created_at | DATETIME | 적재일시 |
 | updated_at | DATETIME | 수정일시 |
 
@@ -245,7 +230,7 @@
 |---|---|---|
 | id | BIGINT PK AUTO_INCREMENT | 고유 ID |
 | user_id | BIGINT | 유저 ID — user.id 참조 |
-| stock_code | VARCHAR(6) | 즐겨찾기 종목코드 — company.stock_code 참조 |
+| stock_code | VARCHAR(6) | 즐겨찾기 종목코드 — company.stock_code 참조 혹은 corp_code로 대체 회의|
 | created_at | DATETIME | 등록일시 |
 | updated_at | DATETIME | 수정일시 |
 
@@ -275,10 +260,10 @@
 
 ```
 Company 1──* FinancialStatement
-Company 1──* StockPrice         (stock_code = srtn_cd)
-Company 1──* DividendInfo       
-Company 1──* StockIndicator
-Company 1──* Top100
+Company 1──1 StockPrice         (stock_code = srtn_cd)
+Company 1──1 DividendInfo       
+Company 1──1 StockIndicator
+Company 1──1 Top100
 
 User    1──* UserFavorite ──*── Company
 User    1──* InvestmentJournal
@@ -291,12 +276,12 @@ InvestmentJournal 1──* Comment
 
 # 외부 API 사용 목록
 
-| API 이름 | 용도 | 연동 엔티티 | 비고 |
-|---|---|---|---|
-| DART OpenAPI (fnlttMultiAcnt) | 재무제표 원문 수집 | `company`, `financial_statement` | corp_code 기반 호출 |
-| 금융위원회 주식시세 API | 현재가·시가총액·상장주식수 수집 | `stock_price` | srtnCd = stock_code 매칭 |
-| 금융위원회 GetStocDiviInfoService_V2 | 배당 정보 수집 | `dividend_info` | isinCd 매칭, 전체 페이지 수집 |
-| 배당수익률 별도 API |  | `stock_indicator` | 후순위 |
+| API 이름 | 용도 | 연동 엔티티 | 비고 | 문서URL |
+|---|---|---|---|---|
+| DART OpenAPI (fnlttMultiAcnt) | 회사 정보 | `company`, `financial_statement` | corp_code stock_code 저장 기준 | https://opendart.fss.or.kr/guide/detail.do?apiGrpCd=DS001&apiId=2019001 |
+| DART OpenAPI (fnlttMultiAcnt) | 재무제표 원문 수집 | `company`, `financial_statement` | corp_code 기반 호출 | https://opendart.fss.or.kr/guide/detail.do?apiGrpCd=DS003&apiId=2019017 |
+| 금융위원회 주식시세 API | 현재가·시가총액·상장주식수 수집 | `stock_price` | srtnCd = stock_code 매칭 | https://www.data.go.kr/data/15094808/openapi.do |
+| DART OpenAPI (alotMatter) | 배당 정보 수집 | `dividend_info` | corp_code 기반 전체 페이지 수집 | https://opendart.fss.or.kr/guide/detail.do?apiGrpCd=DS002&apiId=2019005 |
 
 ---
 
@@ -353,10 +338,10 @@ InvestmentJournal 1──* Comment
 
 3. 공공데이터 주식시세 API 호출 (srtnCd = company.stock_code)
    → stock_price 테이블 UPSERT
-   → stock_price.isin_cd → company.isin_cd 역참조 저장
+   → stock_price.isin_cd → stock_price.stock_code로 컬럼명 변경 후 저장
 
-4. 금융위원회 배당정보 API 전체 수집
-   → isin_cd == company.isin_cd 매칭 → dividend_info UPSERT
+4. dart 배당정보 API 전체 수집
+   → corp_code == company.corp_code 매칭 → dividend_info UPSERT
 
 5. financial_statement + stock_price 데이터 기반 지표 계산
    → stock_indicator UPSERT (calc_year 기준)
